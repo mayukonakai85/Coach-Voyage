@@ -111,8 +111,8 @@ export function MemberRow({ member, currentUserId }: { member: Member; currentUs
       <td className="px-5 py-4">
         <div className="flex items-center gap-2 justify-end flex-wrap">
           <InviteButton memberId={member.id} memberName={member.name} memberEmail={member.email} />
-          <span className={`text-xs px-2 py-0.5 rounded-full font-medium ${member.isActive ? "bg-green-100 text-green-700" : "bg-red-100 text-red-600"}`}>
-            {member.isActive ? "有効" : "無効"}
+          <span className={`text-xs px-2 py-0.5 rounded-full font-medium ${member.isActive ? "bg-green-100 text-green-700" : "bg-gray-100 text-gray-500"}`}>
+            {member.isActive ? "利用中" : "停止中"}
           </span>
           <button
             disabled={saving}
@@ -121,7 +121,7 @@ export function MemberRow({ member, currentUserId }: { member: Member; currentUs
               member.isActive ? "bg-red-50 hover:bg-red-100 text-red-700" : "bg-green-50 hover:bg-green-100 text-green-700"
             }`}
           >
-            {saving ? "…" : member.isActive ? "無効化" : "有効化"}
+            {saving ? "…" : member.isActive ? "利用停止" : "利用再開"}
           </button>
         </div>
       </td>

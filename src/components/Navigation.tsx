@@ -4,7 +4,7 @@ import Link from "next/link";
 import { useSession, signOut } from "next-auth/react";
 import { usePathname } from "next/navigation";
 import { useState, useRef, useEffect } from "react";
-import { Avatar } from "@/components/Avatar";
+import { NavAvatar } from "@/components/NavAvatar";
 
 export function Navigation() {
   const { data: session } = useSession();
@@ -107,7 +107,7 @@ export function Navigation() {
           {/* ユーザーメニュー */}
           <div className="flex items-center gap-2">
             <Link href="/profile" className="hidden sm:flex items-center gap-2 hover:opacity-80 transition-opacity">
-              {session?.user?.name && <Avatar name={session.user.name} avatarUrl={session.user.avatarUrl} size="sm" />}
+              {session?.user?.name && <NavAvatar name={session.user.name} fallbackUrl={session.user.avatarUrl} />}
               <div className="text-right">
                 <p className="text-sm font-medium text-gray-900 leading-tight">{session?.user?.name}</p>
                 {isAdmin && <p className="text-xs text-orange-600 font-medium">管理者</p>}
