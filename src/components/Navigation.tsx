@@ -37,6 +37,7 @@ export function Navigation() {
     { href: "/admin/seminars", label: "セミナー管理" },
     { href: "/admin/videos", label: "動画管理" },
     { href: "/admin/members", label: "会員管理" },
+    { href: "/admin/tags", label: "タグ管理" },
   ];
 
   const isAdminActive = pathname.startsWith("/admin");

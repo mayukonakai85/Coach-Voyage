@@ -3,6 +3,8 @@
 import { useState, useRef } from "react";
 import { Avatar } from "@/components/Avatar";
 
+type Tag = { id: string; name: string };
+
 type Profile = {
   id: string;
   name: string;
@@ -11,13 +13,24 @@ type Profile = {
   avatarUrl: string | null;
   role: string;
   createdAt: Date | string;
+  learningSince: string | null;
   _count: { views: number; notes: number; comments: number };
 };
 
-export function ProfileEditor({ profile }: { profile: Profile }) {
+export function ProfileEditor({
+  profile,
+  allTags,
+  initialTagIds,
+}: {
+  profile: Profile;
+  allTags: Tag[];
+  initialTagIds: string[];
+}) {
   const [name, setName] = useState(profile.name);
   const [bio, setBio] = useState(profile.bio ?? "");
   const [email, setEmail] = useState(profile.email);
+  const [learningSince, setLearningSince] = useState(profile.learningSince ?? "");
+  const [selectedTags, setSelectedTags] = useState<string[]>(initialTagIds);
   const [avatarUrl, setAvatarUrl] = useState(profile.avatarUrl ?? null);
   const [uploading, setUploading] = useState(false);
   const [saving, setSaving] = useState(false);
@@ -40,7 +53,7 @@ export function ProfileEditor({ profile }: { profile: Profile }) {
       const res = await fetch("/api/profile", {
         method: "PUT",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ name, bio, email }),
+        body: JSON.stringify({ name, bio, email, learningSince, tagIds: selectedTags }),
       });
       if (res.ok) {
         setSaved(true);
@@ -103,6 +116,10 @@ export function ProfileEditor({ profile }: { profile: Profile }) {
     } finally {
       setUploading(false);
     }
+  }
+
+  function toggleTag(id: string) {
+    setSelectedTags(prev => prev.includes(id) ? prev.filter(t => t !== id) : [...prev, id]);
   }
 
   const joinedDate = new Date(profile.createdAt).toLocaleDateString("ja-JP", {
@@ -206,6 +223,41 @@ export function ProfileEditor({ profile }: { profile: Profile }) {
               placeholder="コーチングとの出会いや、大切にしていることなど"
             />
           </div>
+          <div>
+            <label className="block text-sm font-medium text-gray-700 mb-1.5">
+              学習開始時期<span className="text-gray-400 font-normal ml-2">（任意）</span>
+            </label>
+            <input
+              type="text"
+              value={learningSince}
+              onChange={(e) => setLearningSince(e.target.value)}
+              placeholder="例：2024年4月"
+              className="w-full rounded-xl border border-gray-200 px-3.5 py-2.5 text-sm text-gray-800 placeholder-gray-300 focus:border-blue-400 focus:outline-none focus:ring-1 focus:ring-blue-300"
+            />
+          </div>
+          {allTags.length > 0 && (
+            <div>
+              <label className="block text-sm font-medium text-gray-700 mb-2">
+                興味関心タグ<span className="text-gray-400 font-normal ml-2">（複数選択可）</span>
+              </label>
+              <div className="flex flex-wrap gap-2">
+                {allTags.map(tag => (
+                  <button
+                    key={tag.id}
+                    type="button"
+                    onClick={() => toggleTag(tag.id)}
+                    className={`text-xs px-3 py-1.5 rounded-full border font-medium transition-colors ${
+                      selectedTags.includes(tag.id)
+                        ? "bg-blue-600 border-blue-600 text-white"
+                        : "border-gray-200 text-gray-600 hover:border-blue-300 hover:text-blue-600"
+                    }`}
+                  >
+                    {tag.name}
+                  </button>
+                ))}
+              </div>
+            </div>
+          )}
           {error && <p className="text-sm text-red-500">{error}</p>}
           <button
             onClick={handleSave}
