@@ -1,0 +1,135 @@
+// Prisma Schema for Coach Voyage
+// フェーズ2（セミナー機能）のモデルはコメントアウトで記載済み
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "sqlite"
+  url      = env("DATABASE_URL")
+}
+
+// ユーザーロール
+// ADMIN: 管理者（動画・会員の管理が可能）
+// MEMBER: 一般会員（動画の閲覧のみ）
+model User {
+  id        String   @id @default(cuid())
+  email     String   @unique
+  password  String
+  name      String
+  role                 String    @default("MEMBER") // "ADMIN" | "MEMBER"
+  title                String?   // 役職・肩書き（例: リーダーコーチ）
+  bio                  String?
+  avatarUrl            String?
+  isActive             Boolean   @default(true)
+  passwordResetToken   String?
+  passwordResetExpires DateTime?
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  // フェーズ2: セミナー予約との関連
+  // registrations Registration[]
+  views       VideoView[]
+  notes       Note[]
+  comments    Comment[]
+}
+
+// 動画アーカイブ
+model Video {
+  id           String   @id @default(cuid())
+  title        String
+  description  String
+  thumbnailUrl String?  // カスタムサムネイルURL（nullの場合はBunny.netのデフォルトを使用）
+  bunnyVideoId String   // Bunny.net の動画ID（GUID形式）
+  category     String   @default("uncategorized") // "入会特典" | "Business doc" | "Coaching doc" | "Short movie" | "uncategorized"
+  sortOrder    Int      @default(0) // カテゴリ内の並び順（数字ファイル名の場合）
+  recordedAt   DateTime? // 収録日（ファイル名の日付から自動取得）
+  publishedAt  DateTime @default(now()) // Bunny.netへのアップロード日
+  isPublished  Boolean  @default(true)
+  createdAt    DateTime @default(now())
+  updatedAt    DateTime @updatedAt
+  views        VideoView[]
+  notes        Note[]
+  comments     Comment[]
+}
+
+// 学習ノート（動画ごとの個人メモ）
+model Note {
+  id        String   @id @default(cuid())
+  userId    String
+  videoId   String
+  content   String
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+  user      User     @relation(fields: [userId], references: [id])
+  video     Video    @relation(fields: [videoId], references: [id], onDelete: Cascade)
+
+  @@unique([userId, videoId])
+}
+
+// コメント
+model Comment {
+  id        String   @id @default(cuid())
+  userId    String
+  videoId   String
+  content   String
+  createdAt DateTime @default(now())
+  user      User     @relation(fields: [userId], references: [id])
+  video     Video    @relation(fields: [videoId], references: [id], onDelete: Cascade)
+}
+
+// 視聴履歴
+model VideoView {
+  id          String   @id @default(cuid())
+  userId      String
+  videoId     String
+  viewedAt    DateTime @default(now())
+  // 将来の分析用（再生位置など）
+  lastPosition Int     @default(0) // 秒単位
+  user        User     @relation(fields: [userId], references: [id])
+  video       Video    @relation(fields: [videoId], references: [id], onDelete: Cascade)
+
+  @@unique([userId, videoId]) // 1ユーザー1動画につき1レコード
+}
+
+// セミナー
+model Seminar {
+  id          String   @id @default(cuid())
+  title       String
+  description String?  // セミナーの説明
+  scheduledAt DateTime
+  zoomUrl     String?
+  isNext      Boolean  @default(false)
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+}
+
+// ============================================
+// フェーズ2: セミナー関連（今は使わない）
+// ============================================
+
+// model Seminar {
+//   id          String   @id @default(cuid())
+//   title       String
+//   description String
+//   scheduledAt DateTime
+//   location    String?  // オンラインの場合はURLなど
+//   capacity    Int?
+//   isPublished Boolean  @default(false)
+//   createdAt   DateTime @default(now())
+//   updatedAt   DateTime @updatedAt
+//   registrations Registration[]
+// }
+
+// model Registration {
+//   id         String   @id @default(cuid())
+//   userId     String
+//   seminarId  String
+//   status     String   @default("CONFIRMED") // "CONFIRMED" | "CANCELLED"
+//   createdAt  DateTime @default(now())
+//   updatedAt  DateTime @updatedAt
+//   user       User     @relation(fields: [userId], references: [id])
+//   seminar    Seminar  @relation(fields: [seminarId], references: [id])
+//   @@unique([userId, seminarId])
+// }
