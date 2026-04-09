@@ -2,6 +2,7 @@
 
 import { useState } from "react";
 import { useRouter } from "next/navigation";
+import { InviteButton } from "./InviteButton";
 
 type Member = {
   id: string;
@@ -106,9 +107,10 @@ export function MemberRow({ member, currentUserId }: { member: Member; currentUs
         {new Date(member.createdAt).toLocaleDateString("ja-JP")}
       </td>
 
-      {/* ステータス・操作 */}
+      {/* 招待・操作 */}
       <td className="px-5 py-4">
         <div className="flex items-center gap-2 justify-end flex-wrap">
+          <InviteButton memberId={member.id} memberName={member.name} memberEmail={member.email} />
           <span className={`text-xs px-2 py-0.5 rounded-full font-medium ${member.isActive ? "bg-green-100 text-green-700" : "bg-red-100 text-red-600"}`}>
             {member.isActive ? "有効" : "無効"}
           </span>

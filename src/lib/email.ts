@@ -19,7 +19,7 @@ export async function sendWelcomeEmail({
   await resend.emails.send({
     from: `Coach Voyage <${from}>`,
     to,
-    subject: "【Coach Voyage】会員登録のお知らせ",
+    subject: "【Coach Voyage】ようこそ！パスワードを設定してください",
     html: `
 <!DOCTYPE html>
 <html lang="ja">
@@ -51,11 +51,66 @@ export async function sendWelcomeEmail({
         </a>
       </div>
 
+
       <p style="color: #9ca3af; font-size: 12px; line-height: 1.6; margin: 0;">
         ※ このメールに心当たりがない場合はそのまま破棄してください。
       </p>
     </div>
 
+    <div style="background: #f8fafc; border-top: 1px solid #e5e7eb; padding: 16px 32px; text-align: center;">
+      <p style="color: #9ca3af; font-size: 12px; margin: 0;">© Coach Voyage</p>
+    </div>
+  </div>
+</body>
+</html>
+    `.trim(),
+  });
+}
+
+// パスワードリセットメール
+export async function sendPasswordResetEmail({
+  to,
+  name,
+  token,
+}: {
+  to: string;
+  name: string;
+  token: string;
+}) {
+  const resend = new Resend(process.env.RESEND_API_KEY);
+  const from = process.env.FROM_EMAIL ?? "onboarding@resend.dev";
+  const resetUrl = `${SITE_URL}/set-password?token=${token}`;
+
+  await resend.emails.send({
+    from: `Coach Voyage <${from}>`,
+    to,
+    subject: "【Coach Voyage】パスワードのリセット",
+    html: `
+<!DOCTYPE html>
+<html lang="ja">
+<head><meta charset="UTF-8"></head>
+<body style="font-family: sans-serif; background: #f5f5f5; margin: 0; padding: 32px 16px;">
+  <div style="max-width: 560px; margin: 0 auto; background: white; border-radius: 12px; overflow: hidden; box-shadow: 0 2px 8px rgba(0,0,0,0.08);">
+    <div style="background: linear-gradient(135deg, #1d4ed8, #4f46e5); padding: 32px; text-align: center;">
+      <p style="color: #93c5fd; font-size: 12px; letter-spacing: 2px; margin: 0 0 8px;">MEMBER PORTAL</p>
+      <h1 style="color: white; font-size: 24px; margin: 0;">Coach Voyage</h1>
+    </div>
+    <div style="padding: 32px;">
+      <p style="color: #374151; font-size: 16px; margin: 0 0 12px;">${name} さん</p>
+      <p style="color: #6b7280; font-size: 14px; line-height: 1.8; margin: 0 0 24px;">
+        パスワードリセットのリクエストを受け付けました。<br>
+        下のボタンから新しいパスワードを設定してください。
+      </p>
+      <div style="text-align: center; margin-bottom: 24px;">
+        <a href="${resetUrl}"
+          style="display: inline-block; background: #1d4ed8; color: white; text-decoration: none; font-weight: bold; font-size: 14px; padding: 14px 32px; border-radius: 8px;">
+          パスワードをリセットする →
+        </a>
+      </div>
+      <p style="color: #9ca3af; font-size: 12px; line-height: 1.6; margin: 0;">
+        ※ このリクエストに心当たりがない場合はそのまま破棄してください。
+      </p>
+    </div>
     <div style="background: #f8fafc; border-top: 1px solid #e5e7eb; padding: 16px 32px; text-align: center;">
       <p style="color: #9ca3af; font-size: 12px; margin: 0;">© Coach Voyage</p>
     </div>

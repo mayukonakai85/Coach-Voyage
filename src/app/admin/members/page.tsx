@@ -44,7 +44,7 @@ export default async function AdminMembersPage() {
                     <th className="text-left text-xs font-semibold text-gray-500 uppercase tracking-wider px-5 py-3 hidden sm:table-cell">役職</th>
                     <th className="text-left text-xs font-semibold text-gray-500 uppercase tracking-wider px-5 py-3 hidden md:table-cell">権限</th>
                     <th className="text-left text-xs font-semibold text-gray-500 uppercase tracking-wider px-5 py-3 hidden lg:table-cell">登録日</th>
-                    <th className="text-right text-xs font-semibold text-gray-500 uppercase tracking-wider px-5 py-3">操作</th>
+                    <th className="text-right text-xs font-semibold text-gray-500 uppercase tracking-wider px-5 py-3">招待・操作</th>
                   </tr>
                 </thead>
                 <tbody>
@@ -56,15 +56,6 @@ export default async function AdminMembersPage() {
             )}
           </div>
 
-          {/* 招待メール送信エリア */}
-          <div className="mt-4 card p-4">
-            <p className="text-xs font-semibold text-gray-500 uppercase tracking-wider mb-3">招待メールを送る</p>
-            <div className="flex flex-wrap gap-2">
-              {members.filter(m => m.isActive).map((member) => (
-                <InviteButton key={member.id} memberId={member.id} memberName={member.name} memberEmail={member.email} />
-              ))}
-            </div>
-          </div>
         </div>
       </div>
     </div>

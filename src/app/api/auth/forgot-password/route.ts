@@ -1,0 +1,32 @@
+import { NextRequest, NextResponse } from "next/server";
+import { prisma } from "@/lib/db";
+import { randomBytes } from "crypto";
+import { sendPasswordResetEmail } from "@/lib/email";
+
+export async function POST(req: NextRequest) {
+  const { email } = await req.json();
+  if (!email) return NextResponse.json({ error: "メールアドレスを入力してください" }, { status: 400 });
+
+  const user = await prisma.user.findUnique({ where: { email } });
+
+  // ユーザーが存在しない場合も同じレスポンスを返す（セキュリティ）
+  if (!user || !user.isActive) {
+    return NextResponse.json({ success: true });
+  }
+
+  const token = randomBytes(32).toString("hex");
+  const expires = new Date(Date.now() + 24 * 60 * 60 * 1000);
+
+  await prisma.user.update({
+    where: { id: user.id },
+    data: { passwordResetToken: token, passwordResetExpires: expires },
+  });
+
+  try {
+    await sendPasswordResetEmail({ to: user.email, name: user.name, token });
+  } catch (err) {
+    console.error("Password reset email error:", err);
+  }
+
+  return NextResponse.json({ success: true });
+}

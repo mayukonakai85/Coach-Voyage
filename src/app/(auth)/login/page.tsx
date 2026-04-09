@@ -3,6 +3,7 @@
 import { Suspense, useState } from "react";
 import { signIn } from "next-auth/react";
 import { useRouter, useSearchParams } from "next/navigation";
+import Link from "next/link";
 
 function LoginForm() {
   const router = useRouter();
@@ -88,9 +89,12 @@ function LoginForm() {
         </button>
       </form>
 
-      <p className="mt-6 text-xs text-center text-gray-400">
-        アカウントをお持ちでない方は管理者にお問い合わせください
-      </p>
+      <div className="mt-5 flex items-center justify-between text-xs text-gray-400">
+        <Link href="/forgot-password" className="hover:text-blue-600 transition-colors">
+          パスワードをお忘れの方
+        </Link>
+        <span>アカウントは管理者にお問い合わせください</span>
+      </div>
     </div>
   );
 }
