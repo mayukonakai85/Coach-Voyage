@@ -19,6 +19,7 @@ export function WelcomePopup({ loginCount, userName, avatarUrl }: Props) {
   // Step1
   const [previewUrl, setPreviewUrl] = useState<string | null>(avatarUrl);
   const [uploading, setUploading] = useState(false);
+  const [uploadError, setUploadError] = useState("");
   const fileRef = useRef<HTMLInputElement>(null);
 
   // Step2
@@ -47,14 +48,25 @@ export function WelcomePopup({ loginCount, userName, avatarUrl }: Props) {
     if (!file) return;
     setPreviewUrl(URL.createObjectURL(file));
     setUploading(true);
+    setUploadError("");
     const form = new FormData();
     form.append("file", file);
-    const res = await fetch("/api/profile/avatar", { method: "POST", body: form });
-    if (res.ok) {
-      const data = await res.json();
-      setPreviewUrl(data.avatarUrl + "?t=" + Date.now());
+    try {
+      const res = await fetch("/api/profile/avatar", { method: "POST", body: form });
+      if (res.ok) {
+        const data = await res.json();
+        setPreviewUrl(data.avatarUrl + "?t=" + Date.now());
+      } else {
+        const data = await res.json();
+        setUploadError(data.error ?? "アップロードに失敗しました");
+        setPreviewUrl(avatarUrl);
+      }
+    } catch {
+      setUploadError("ネットワークエラーが発生しました");
+      setPreviewUrl(avatarUrl);
+    } finally {
+      setUploading(false);
     }
-    setUploading(false);
   }
 
   function toggleTag(id: string) {
@@ -129,7 +141,11 @@ export function WelcomePopup({ loginCount, userName, avatarUrl }: Props) {
                   <input ref={fileRef} type="file" accept="image/*" className="hidden" onChange={handleAvatarChange} />
                 </button>
               </div>
-              <p className="text-center text-xs text-gray-400 mb-6">タップして写真を選択</p>
+              {uploadError ? (
+                <p className="text-center text-xs text-red-500 mb-6">{uploadError}</p>
+              ) : (
+                <p className="text-center text-xs text-gray-400 mb-6">タップして写真を選択</p>
+              )}
               <button onClick={() => setStep(2)} className="w-full bg-blue-600 hover:bg-blue-700 text-white font-bold py-3 rounded-xl text-sm transition-colors">
                 次へ →
               </button>
@@ -180,14 +196,17 @@ export function WelcomePopup({ loginCount, userName, avatarUrl }: Props) {
               <p className="text-xs text-gray-400 mb-4">運営のみ閲覧できます</p>
 
               <div className="mb-4">
-                <label className="block text-sm font-medium text-gray-700 mb-1.5">学習開始時期</label>
-                <input
-                  type="text"
+                <label className="block text-sm font-medium text-gray-700 mb-1.5">コーチング学習開始時期</label>
+                <select
                   value={learningSince}
                   onChange={e => setLearningSince(e.target.value)}
-                  className="w-full rounded-xl border border-gray-200 px-3.5 py-2.5 text-sm focus:border-blue-400 focus:outline-none focus:ring-1 focus:ring-blue-300"
-                  placeholder="例：2024年4月"
-                />
+                  className="w-full rounded-xl border border-gray-200 px-3.5 py-2.5 text-sm focus:border-blue-400 focus:outline-none focus:ring-1 focus:ring-blue-300 bg-white"
+                >
+                  <option value="">選択してください</option>
+                  {Array.from({ length: new Date().getFullYear() - 2009 }, (_, i) => new Date().getFullYear() - i).map(y => (
+                    <option key={y} value={String(y)}>{y}年</option>
+                  ))}
+                </select>
               </div>
 
               <div className="mb-6">

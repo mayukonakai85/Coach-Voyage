@@ -225,15 +225,18 @@ export function ProfileEditor({
           </div>
           <div>
             <label className="block text-sm font-medium text-gray-700 mb-1.5">
-              学習開始時期<span className="text-gray-400 font-normal ml-2">（任意）</span>
+              コーチング学習開始時期<span className="text-gray-400 font-normal ml-2">（任意）</span>
             </label>
-            <input
-              type="text"
+            <select
               value={learningSince}
               onChange={(e) => setLearningSince(e.target.value)}
-              placeholder="例：2024年4月"
-              className="w-full rounded-xl border border-gray-200 px-3.5 py-2.5 text-sm text-gray-800 placeholder-gray-300 focus:border-blue-400 focus:outline-none focus:ring-1 focus:ring-blue-300"
-            />
+              className="w-full rounded-xl border border-gray-200 px-3.5 py-2.5 text-sm text-gray-800 focus:border-blue-400 focus:outline-none focus:ring-1 focus:ring-blue-300 bg-white"
+            >
+              <option value="">選択してください</option>
+              {Array.from({ length: new Date().getFullYear() - 2009 }, (_, i) => new Date().getFullYear() - i).map(y => (
+                <option key={y} value={String(y)}>{y}年</option>
+              ))}
+            </select>
           </div>
           {allTags.length > 0 && (
             <div>
