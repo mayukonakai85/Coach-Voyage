@@ -24,8 +24,10 @@ model User {
   avatarUrl            String?
   isActive             Boolean   @default(true)
   loginCount           Int       @default(0)
+  learningSince        String?   // 学習開始時期
   passwordResetToken   String?
   passwordResetExpires DateTime?
+  tags                 UserTag[]
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
 
@@ -104,6 +106,25 @@ model Seminar {
   isNext      Boolean  @default(false)
   createdAt   DateTime @default(now())
   updatedAt   DateTime @updatedAt
+}
+
+// 興味関心タグ
+model Tag {
+  id        String    @id @default(cuid())
+  name      String    @unique
+  sortOrder Int       @default(0)
+  createdAt DateTime  @default(now())
+  users     UserTag[]
+}
+
+// ユーザーとタグの中間テーブル
+model UserTag {
+  userId String
+  tagId  String
+  user   User   @relation(fields: [userId], references: [id], onDelete: Cascade)
+  tag    Tag    @relation(fields: [tagId], references: [id], onDelete: Cascade)
+
+  @@id([userId, tagId])
 }
 
 // ============================================

@@ -15,8 +15,11 @@ export async function GET() {
       name: true,
       email: true,
       bio: true,
+      avatarUrl: true,
+      learningSince: true,
       role: true,
       createdAt: true,
+      tags: { select: { tag: { select: { id: true, name: true } } } },
       _count: {
         select: { views: true, notes: true, comments: true },
       },
@@ -30,14 +33,15 @@ export async function PUT(req: NextRequest) {
   const session = await getServerSession(authOptions);
   if (!session) return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
 
-  const { name, bio, email, currentPassword, newPassword } = await req.json();
+  const { name, bio, email, currentPassword, newPassword, learningSince, tagIds } = await req.json();
   if (!name?.trim()) {
     return NextResponse.json({ error: "名前は必須です" }, { status: 400 });
   }
 
-  const updateData: Record<string, string | null> = {
+  const updateData: Record<string, unknown> = {
     name: name.trim(),
     bio: bio?.trim() || null,
+    learningSince: learningSince?.trim() || null,
   };
 
   // メール変更
@@ -65,8 +69,18 @@ export async function PUT(req: NextRequest) {
   const user = await prisma.user.update({
     where: { id: session.user.id },
     data: updateData,
-    select: { id: true, name: true, bio: true, email: true },
+    select: { id: true, name: true, bio: true, email: true, learningSince: true },
   });
+
+  // タグを更新
+  if (Array.isArray(tagIds)) {
+    await prisma.userTag.deleteMany({ where: { userId: session.user.id } });
+    if (tagIds.length > 0) {
+      await prisma.userTag.createMany({
+        data: tagIds.map((tagId: string) => ({ userId: session.user.id, tagId })),
+      });
+    }
+  }
 
   return NextResponse.json(user);
 }

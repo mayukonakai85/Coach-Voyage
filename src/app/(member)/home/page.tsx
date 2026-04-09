@@ -27,7 +27,6 @@ export default async function HomePage() {
           loginCount={session.user.loginCount ?? 1}
           userName={session.user.name ?? ""}
           avatarUrl={userProfile?.avatarUrl ?? null}
-          hasBio={!!userProfile?.bio}
         />
       )}
       {/* 挨拶 */}
