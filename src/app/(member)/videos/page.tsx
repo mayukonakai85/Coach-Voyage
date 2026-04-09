@@ -2,6 +2,7 @@ import { getServerSession } from "next-auth";
 import { authOptions } from "@/lib/auth";
 import { prisma } from "@/lib/db";
 import { CATEGORIES } from "@/lib/categories";
+import { memberVideoFilter } from "@/lib/videoFilter";
 import Link from "next/link";
 import { VideoCard } from "@/components/VideoCard";
 
@@ -12,11 +13,11 @@ export default async function VoyageLibraryPage() {
   const [counts, topVideos, viewedRecords] = await Promise.all([
     prisma.video.groupBy({
       by: ["category"],
-      where: { isPublished: true },
+      where: memberVideoFilter(),
       _count: { id: true },
     }),
     prisma.video.findMany({
-      where: { isPublished: true },
+      where: memberVideoFilter(),
       include: { _count: { select: { views: true } } },
       orderBy: { views: { _count: "desc" } },
       take: 3,

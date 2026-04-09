@@ -13,6 +13,7 @@ type VideoFormData = {
   sortOrder: number;
   publishedAt: string;
   isPublished: boolean;
+  schedulePublishAt: string;
 };
 
 export function VideoForm({
@@ -36,6 +37,9 @@ export function VideoForm({
       ? new Date(initialData.publishedAt).toISOString().slice(0, 10)
       : new Date().toISOString().slice(0, 10),
     isPublished: initialData?.isPublished ?? true,
+    schedulePublishAt: initialData?.schedulePublishAt
+      ? new Date(initialData.schedulePublishAt).toISOString().slice(0, 16)
+      : "",
   });
 
   const [isLoading, setIsLoading] = useState(false);
@@ -166,6 +170,19 @@ export function VideoForm({
             className="input"
             required
           />
+        </div>
+
+        <div>
+          <label className="label">予約公開日時（任意）</label>
+          <input
+            type="datetime-local"
+            value={form.schedulePublishAt}
+            onChange={(e) => setForm({ ...form, schedulePublishAt: e.target.value })}
+            className="input"
+          />
+          <p className="text-xs text-gray-400 mt-1">
+            設定した日時になると自動で公開されます。空白の場合は即時公開（下の公開チェックに従う）
+          </p>
         </div>
 
         <div className="flex items-center gap-3">

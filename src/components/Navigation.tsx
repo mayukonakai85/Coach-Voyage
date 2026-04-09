@@ -27,6 +27,7 @@ export function Navigation() {
   const memberLinks = [
     { href: "/home", label: "ホーム", exact: true },
     { href: "/videos", label: "Voyage Library", exact: false },
+    { href: "/notes", label: "ノート", exact: false },
     { href: "/members", label: "メンバー", exact: false },
     { href: "/profile", label: "マイページ", exact: false },
   ];
@@ -38,6 +39,7 @@ export function Navigation() {
     { href: "/admin/videos", label: "動画管理" },
     { href: "/admin/members", label: "会員管理" },
     { href: "/admin/tags", label: "タグ管理" },
+    { href: "/admin/tutorial", label: "管理者ガイド" },
   ];
 
   const isAdminActive = pathname.startsWith("/admin");

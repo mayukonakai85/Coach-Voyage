@@ -34,7 +34,7 @@ export async function POST(req: NextRequest) {
 
   try {
     const body = await req.json();
-    const { title, description, bunnyVideoId, thumbnailUrl, category, sortOrder, publishedAt, isPublished } = body;
+    const { title, description, bunnyVideoId, thumbnailUrl, category, sortOrder, publishedAt, isPublished, schedulePublishAt } = body;
 
     if (!title || !bunnyVideoId) {
       return NextResponse.json(
@@ -53,6 +53,7 @@ export async function POST(req: NextRequest) {
         sortOrder: sortOrder ?? 0,
         publishedAt: publishedAt ? new Date(publishedAt) : new Date(),
         isPublished: isPublished ?? true,
+        schedulePublishAt: schedulePublishAt ? new Date(schedulePublishAt) : null,
       },
     });
 

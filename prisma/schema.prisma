@@ -49,7 +49,8 @@ model Video {
   sortOrder    Int      @default(0) // カテゴリ内の並び順（数字ファイル名の場合）
   recordedAt   DateTime? // 収録日（ファイル名の日付から自動取得）
   publishedAt  DateTime @default(now()) // Bunny.netへのアップロード日
-  isPublished  Boolean  @default(true)
+  isPublished        Boolean   @default(true)
+  schedulePublishAt  DateTime? // 予約公開日時。設定した日時になったら自動公開
   createdAt    DateTime @default(now())
   updatedAt    DateTime @updatedAt
   views        VideoView[]

@@ -4,6 +4,7 @@ import { getServerSession } from "next-auth";
 import { authOptions } from "@/lib/auth";
 import { prisma } from "@/lib/db";
 import { getCategoryBySlug } from "@/lib/categories";
+import { memberVideoFilter } from "@/lib/videoFilter";
 import { VideoCard } from "@/components/VideoCard";
 
 export default async function CategoryPage({
@@ -19,7 +20,7 @@ export default async function CategoryPage({
 
   const [videos, viewedRecords] = await Promise.all([
     prisma.video.findMany({
-      where: { isPublished: true, category: cat.name },
+      where: memberVideoFilter({ category: cat.name }),
       orderBy: { sortOrder: "desc" },
     }),
     // ログインユーザーの視聴済み動画IDを取得
