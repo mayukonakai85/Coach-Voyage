@@ -2,20 +2,34 @@ import { getServerSession } from "next-auth";
 import { authOptions } from "@/lib/auth";
 import { prisma } from "@/lib/db";
 import { SeminarCalendar } from "@/components/SeminarCalendar";
+import { WelcomePopup } from "@/components/WelcomePopup";
 
 export default async function HomePage() {
   const session = await getServerSession(authOptions);
 
-  const [nextSeminar, seminars] = await Promise.all([
+  const [nextSeminar, seminars, userProfile] = await Promise.all([
     prisma.seminar.findFirst({ where: { isNext: true } }),
     prisma.seminar.findMany({
       where: { scheduledAt: { gte: new Date() } },
       orderBy: { scheduledAt: "asc" },
     }),
+    session ? prisma.user.findUnique({
+      where: { id: session.user.id },
+      select: { avatarUrl: true, bio: true },
+    }) : null,
   ]);
 
   return (
     <div className="space-y-10">
+      {/* ウェルカムポップアップ */}
+      {session && (
+        <WelcomePopup
+          loginCount={session.user.loginCount ?? 1}
+          userName={session.user.name ?? ""}
+          avatarUrl={userProfile?.avatarUrl ?? null}
+          hasBio={!!userProfile?.bio}
+        />
+      )}
       {/* 挨拶 */}
       <div>
         <p className="text-sm text-blue-600 font-semibold uppercase tracking-widest mb-1">Member Portal</p>

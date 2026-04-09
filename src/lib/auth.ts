@@ -32,11 +32,19 @@ export const authOptions: NextAuthOptions = {
 
         if (!isPasswordValid) return null;
 
+        // ログイン回数をインクリメント
+        const updated = await prisma.user.update({
+          where: { id: user.id },
+          data: { loginCount: { increment: 1 } },
+          select: { loginCount: true },
+        });
+
         return {
           id: user.id,
           email: user.email,
           name: user.name,
           role: user.role as "ADMIN" | "MEMBER",
+          loginCount: updated.loginCount,
         };
       },
     }),
@@ -50,6 +58,7 @@ export const authOptions: NextAuthOptions = {
       if (user) {
         token.role = user.role;
         token.id = user.id;
+        token.loginCount = (user as { loginCount?: number }).loginCount ?? 1;
       }
       return token;
     },
@@ -57,6 +66,7 @@ export const authOptions: NextAuthOptions = {
       if (token && session.user) {
         session.user.role = token.role;
         session.user.id = token.id;
+        session.user.loginCount = token.loginCount as number ?? 1;
         // 最新のアバターURLを取得
         const user = await prisma.user.findUnique({
           where: { id: token.id },

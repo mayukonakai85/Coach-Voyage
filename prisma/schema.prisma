@@ -23,6 +23,7 @@ model User {
   bio                  String?
   avatarUrl            String?
   isActive             Boolean   @default(true)
+  loginCount           Int       @default(0)
   passwordResetToken   String?
   passwordResetExpires DateTime?
   createdAt DateTime @default(now())

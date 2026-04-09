@@ -6,6 +6,7 @@ declare module "next-auth" {
       id: string;
       role: "ADMIN" | "MEMBER";
       avatarUrl: string | null;
+      loginCount: number;
     } & DefaultSession["user"];
   }
 
@@ -18,5 +19,6 @@ declare module "next-auth/jwt" {
   interface JWT {
     role: "ADMIN" | "MEMBER";
     id: string;
+    loginCount: number;
   }
 }
