@@ -106,9 +106,9 @@ export default function LoginPage() {
         <div className="text-center mb-8">
           {/* eslint-disable-next-line @next/next/no-img-element */}
           <img
-            src="/Coach Voyageロゴ.png"
+            src="/logo-withe.png"
             alt="Coach Voyage"
-            className="h-14 w-auto mx-auto mb-4 brightness-0 invert"
+            className="h-14 w-auto mx-auto mb-4"
           />
           <h1 className="text-3xl font-bold text-white">Coach Voyage</h1>
           <p className="text-blue-200 mt-1 text-sm">メンバーページ</p>
