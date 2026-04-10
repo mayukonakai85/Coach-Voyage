@@ -78,38 +78,23 @@ export default async function VideoDetailPage({
       </div>
 
       {/* 動画情報 */}
-      <div className="card p-6">
-        <div className="flex items-start justify-between gap-4">
-          <h1 className="text-2xl font-bold text-gray-900">{video.title}</h1>
-          {session && (
-            <VideoLikeButton videoId={video.id} initialLiked={!!videoLike} initialCount={likeCount} />
-          )}
-        </div>
-
-        {/* 日付情報 */}
-        <div className="flex flex-wrap gap-4 mt-4 mb-4">
-          {recordedDate && (
-            <div className="flex items-center gap-1.5 text-sm text-gray-600">
-              <svg className="w-4 h-4 text-gray-400 shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 10l4.553-2.069A1 1 0 0121 8.845v6.31a1 1 0 01-1.447.894L15 14M5 18h8a2 2 0 002-2V8a2 2 0 00-2-2H5a2 2 0 00-2 2v8a2 2 0 002 2z" />
-              </svg>
-              <span>収録日：<span className="font-medium">{recordedDate}</span></span>
-            </div>
-          )}
-          <div className="flex items-center gap-1.5 text-sm text-gray-500">
-            <svg className="w-4 h-4 text-gray-400 shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-8l-4-4m0 0L8 8m4-4v12" />
-            </svg>
-            <span>アップ日：{uploadedDate}</span>
+      <div className="card px-5 py-3">
+        <div className="flex items-center gap-3 flex-wrap">
+          <h1 className="text-base font-bold text-gray-900 flex-1 min-w-0">{video.title}</h1>
+          <div className="flex items-center gap-3 shrink-0 flex-wrap">
+            {recordedDate && (
+              <span className="text-xs text-gray-500">収録日：{recordedDate}</span>
+            )}
+            <span className="text-xs text-gray-400">アップ日：{uploadedDate}</span>
+            {session && (
+              <VideoLikeButton videoId={video.id} initialLiked={!!videoLike} initialCount={likeCount} />
+            )}
           </div>
         </div>
-
         {video.description && (
-          <div className="border-t border-gray-100 pt-4">
-            <p className="text-gray-600 leading-relaxed whitespace-pre-wrap">
-              {video.description}
-            </p>
-          </div>
+          <p className="text-sm text-gray-500 mt-2 leading-relaxed whitespace-pre-wrap border-t border-gray-100 pt-2">
+            {video.description}
+          </p>
         )}
       </div>
 
