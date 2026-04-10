@@ -29,6 +29,7 @@ model User {
   passwordResetExpires DateTime?
   invitedAt            DateTime? // 招待メール送付日時
   tags                 UserTag[]
+  seminarLecturers     SeminarLecturer[]
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
 
@@ -144,6 +145,21 @@ model Seminar {
   isNext      Boolean  @default(false)
   createdAt   DateTime @default(now())
   updatedAt   DateTime @updatedAt
+  lecturers   SeminarLecturer[]
+}
+
+// 講師（セミナーに紐づく）
+model SeminarLecturer {
+  id        String   @id @default(cuid())
+  seminarId String
+  seminar   Seminar  @relation(fields: [seminarId], references: [id], onDelete: Cascade)
+  userId    String?  // メンバー講師の場合
+  user      User?    @relation(fields: [userId], references: [id], onDelete: SetNull)
+  name      String   // 表示名
+  photoUrl  String?  // 外部講師の写真（base64）
+  bio       String?  // 紹介文
+  sortOrder Int      @default(0)
+  createdAt DateTime @default(now())
 }
 
 // 興味関心タグ

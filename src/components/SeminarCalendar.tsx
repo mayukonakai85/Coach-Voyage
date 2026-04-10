@@ -2,6 +2,14 @@
 
 import { useState } from "react";
 
+type Lecturer = {
+  id: string;
+  name: string;
+  photoUrl: string | null;
+  bio: string | null;
+  user: { avatarUrl: string | null; title: string | null } | null;
+};
+
 type Seminar = {
   id: string;
   title: string;
@@ -11,6 +19,7 @@ type Seminar = {
   location?: string | null;
   isOnline?: boolean;
   isNext: boolean;
+  lecturers?: Lecturer[];
 };
 
 export function SeminarCalendar({ seminars }: { seminars: Seminar[] }) {
@@ -75,13 +84,40 @@ export function SeminarCalendar({ seminars }: { seminars: Seminar[] }) {
 
             {/* 詳細展開 */}
             {isOpen && (
-              <div className={`mx-2 mt-1 p-4 rounded-xl border space-y-2 ${isOnline ? "bg-blue-50 border-blue-100" : "bg-green-50 border-green-100"}`}>
+              <div className={`mx-2 mt-1 p-4 rounded-xl border space-y-3 ${isOnline ? "bg-blue-50 border-blue-100" : "bg-green-50 border-green-100"}`}>
                 <p className="text-sm font-bold text-gray-800">{seminar.title}</p>
                 <p className={`text-sm font-semibold ${isOnline ? "text-blue-700" : "text-green-700"}`}>
                   {month}月{day}日（{weekday}） {time}〜
                 </p>
                 {seminar.description && (
                   <p className="text-sm text-gray-600 leading-relaxed">{seminar.description}</p>
+                )}
+                {/* 講師 */}
+                {seminar.lecturers && seminar.lecturers.length > 0 && (
+                  <div>
+                    <p className="text-xs font-bold text-gray-500 mb-2">講師</p>
+                    <div className="flex flex-wrap gap-2">
+                      {seminar.lecturers.map(l => {
+                        const photo = l.user?.avatarUrl ?? l.photoUrl;
+                        return (
+                          <div key={l.id} className="flex items-center gap-2 bg-white rounded-lg px-3 py-1.5 shadow-sm">
+                            {photo ? (
+                              // eslint-disable-next-line @next/next/no-img-element
+                              <img src={photo} alt={l.name} className="w-7 h-7 rounded-full object-cover" />
+                            ) : (
+                              <div className="w-7 h-7 rounded-full bg-blue-400 text-white text-xs font-bold flex items-center justify-center">{l.name.charAt(0)}</div>
+                            )}
+                            <div>
+                              <p className="text-xs font-semibold text-gray-800">{l.name}</p>
+                              {(l.user?.title || l.bio) && (
+                                <p className="text-xs text-gray-400">{l.user?.title ?? l.bio}</p>
+                              )}
+                            </div>
+                          </div>
+                        );
+                      })}
+                    </div>
+                  </div>
                 )}
                 {isOnline ? (
                   seminar.zoomUrl ? (

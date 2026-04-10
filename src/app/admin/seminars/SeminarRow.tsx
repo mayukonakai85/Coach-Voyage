@@ -2,6 +2,7 @@
 
 import { useState } from "react";
 import { useRouter } from "next/navigation";
+import Link from "next/link";
 import { SeminarForm } from "./SeminarForm";
 
 type Seminar = {
@@ -79,6 +80,7 @@ export function SeminarRow({ seminar }: { seminar: Seminar }) {
       </td>
       <td className="px-6 py-4 text-right">
         <div className="flex items-center justify-end gap-2">
+          <Link href={`/admin/seminars/${seminar.id}/lecturers`} className="btn-secondary text-sm py-1.5 px-3">講師</Link>
           <button onClick={() => setIsEditing(true)} className="btn-secondary text-sm py-1.5 px-3">編集</button>
           <button onClick={handleDelete} disabled={isDeleting} className="btn-danger text-sm py-1.5 px-3">削除</button>
         </div>

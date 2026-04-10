@@ -25,11 +25,29 @@ export default async function HomePage() {
   }
 
   const [nextSeminar, seminars, userProfile] = await Promise.all([
-    prisma.seminar.findFirst({ where: { isNext: true } }),
+    prisma.seminar.findFirst({
+      where: { isNext: true },
+      include: {
+        lecturers: {
+          orderBy: { sortOrder: "asc" },
+          include: { user: { select: { avatarUrl: true, title: true } } },
+        },
+      },
+    }),
     prisma.seminar.findMany({
       where: { scheduledAt: { gte: now } },
       orderBy: { scheduledAt: "asc" },
-      select: { id: true, title: true, description: true, scheduledAt: true, zoomUrl: true, location: true, isOnline: true, isNext: true },
+      select: {
+        id: true, title: true, description: true, scheduledAt: true,
+        zoomUrl: true, location: true, isOnline: true, isNext: true,
+        lecturers: {
+          orderBy: { sortOrder: "asc" },
+          select: {
+            id: true, name: true, photoUrl: true, bio: true,
+            user: { select: { avatarUrl: true, title: true } },
+          },
+        },
+      },
     }),
     session ? prisma.user.findUnique({
       where: { id: session.user.id },
@@ -126,8 +144,16 @@ export default async function HomePage() {
   );
 }
 
+type LecturerInfo = {
+  id: string;
+  name: string;
+  photoUrl: string | null;
+  bio: string | null;
+  user: { avatarUrl: string | null; title: string | null } | null;
+};
+
 // 次回セミナー横長バナー
-function NextSeminarBanner({ seminar }: { seminar: { title: string; description?: string | null; scheduledAt: Date; zoomUrl: string | null } }) {
+function NextSeminarBanner({ seminar }: { seminar: { title: string; description?: string | null; scheduledAt: Date; zoomUrl: string | null; lecturers?: LecturerInfo[] } }) {
   const d = new Date(seminar.scheduledAt);
   const month = d.getMonth() + 1;
   const day = d.getDate();
@@ -155,11 +181,29 @@ function NextSeminarBanner({ seminar }: { seminar: { title: string; description?
       {/* 区切り */}
       <div className="hidden sm:block w-px h-16 bg-white/20 shrink-0" />
 
-      {/* タイトル・説明 */}
+      {/* タイトル・説明・講師 */}
       <div className="flex-1 min-w-0">
         <p className="font-bold text-lg leading-snug">{seminar.title}</p>
         {seminar.description && (
           <p className="text-blue-200 text-sm mt-1 leading-relaxed line-clamp-2">{seminar.description}</p>
+        )}
+        {seminar.lecturers && seminar.lecturers.length > 0 && (
+          <div className="flex flex-wrap gap-2 mt-2">
+            {seminar.lecturers.map(l => {
+              const photo = l.user?.avatarUrl ?? l.photoUrl;
+              return (
+                <div key={l.id} className="flex items-center gap-1.5 bg-white/10 rounded-full pl-0.5 pr-3 py-0.5">
+                  {photo ? (
+                    // eslint-disable-next-line @next/next/no-img-element
+                    <img src={photo} alt={l.name} className="w-6 h-6 rounded-full object-cover" />
+                  ) : (
+                    <div className="w-6 h-6 rounded-full bg-blue-300 text-white text-xs font-bold flex items-center justify-center">{l.name.charAt(0)}</div>
+                  )}
+                  <span className="text-xs font-medium text-white">{l.name}</span>
+                </div>
+              );
+            })}
+          </div>
         )}
       </div>
 
