@@ -68,6 +68,25 @@ export function SeminarCalendar({ seminars }: { seminars: Seminar[] }) {
                     <p className="font-semibold text-gray-900 text-sm leading-snug truncate">{seminar.title}</p>
                   </div>
                   <p className={`text-sm font-bold mt-0.5 ${isOnline ? "text-blue-600" : "text-green-600"}`}>{time}〜</p>
+                  {/* 講師プレビュー */}
+                  {seminar.lecturers && seminar.lecturers.length > 0 && (
+                    <div className="flex items-center gap-1.5 mt-1.5">
+                      <div className="flex -space-x-1">
+                        {seminar.lecturers.slice(0, 3).map(l => {
+                          const photo = l.user?.avatarUrl ?? l.photoUrl;
+                          return photo ? (
+                            // eslint-disable-next-line @next/next/no-img-element
+                            <img key={l.id} src={photo} alt={l.name} className="w-5 h-5 rounded-full object-cover border border-white" />
+                          ) : (
+                            <div key={l.id} className="w-5 h-5 rounded-full bg-blue-400 text-white text-xs font-bold flex items-center justify-center border border-white">{l.name.charAt(0)}</div>
+                          );
+                        })}
+                      </div>
+                      <span className="text-xs text-gray-500">
+                        {seminar.lecturers.map(l => l.name).join("・")}
+                      </span>
+                    </div>
+                  )}
                 </div>
 
                 <div className="flex items-center gap-2 shrink-0">
