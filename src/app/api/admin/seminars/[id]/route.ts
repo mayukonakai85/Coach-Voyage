@@ -13,7 +13,7 @@ export async function PUT(req: NextRequest, { params }: { params: { id: string }
   const session = await requireAdmin();
   if (!session) return NextResponse.json({ error: "Forbidden" }, { status: 403 });
 
-  const { title, description, scheduledAt, zoomUrl, isNext } = await req.json();
+  const { title, description, scheduledAt, zoomUrl, location, isOnline, isNext } = await req.json();
 
   if (isNext) {
     await prisma.seminar.updateMany({ where: { id: { not: params.id } }, data: { isNext: false } });
@@ -21,7 +21,15 @@ export async function PUT(req: NextRequest, { params }: { params: { id: string }
 
   const seminar = await prisma.seminar.update({
     where: { id: params.id },
-    data: { title, description: description || null, scheduledAt: new Date(scheduledAt), zoomUrl: zoomUrl || null, isNext: isNext ?? false },
+    data: {
+      title,
+      description: description || null,
+      scheduledAt: new Date(scheduledAt),
+      zoomUrl: zoomUrl || null,
+      location: location || null,
+      isOnline: isOnline ?? true,
+      isNext: isNext ?? false,
+    },
   });
 
   return NextResponse.json(seminar);

@@ -29,6 +29,7 @@ export default async function HomePage() {
     prisma.seminar.findMany({
       where: { scheduledAt: { gte: now } },
       orderBy: { scheduledAt: "asc" },
+      select: { id: true, title: true, description: true, scheduledAt: true, zoomUrl: true, location: true, isOnline: true, isNext: true },
     }),
     session ? prisma.user.findUnique({
       where: { id: session.user.id },
@@ -69,7 +70,7 @@ export default async function HomePage() {
         {/* ミニカレンダー */}
         <div className="lg:col-span-2">
           <div className="card p-5 h-full">
-            <h2 className="text-sm font-bold text-gray-700 mb-4">セミナーカレンダー</h2>
+            <h2 className="text-sm font-bold text-gray-700 mb-4">イベントカレンダー</h2>
             <MonthCalendar seminars={seminars} />
           </div>
         </div>
@@ -77,7 +78,7 @@ export default async function HomePage() {
         {/* セミナーリスト */}
         <div className="lg:col-span-3">
           <div className="card p-5 h-full">
-            <h2 className="text-sm font-bold text-gray-700 mb-4">今後のセミナー日程</h2>
+            <h2 className="text-sm font-bold text-gray-700 mb-4">今後のイベント日程</h2>
             <SeminarCalendar seminars={seminars} />
           </div>
         </div>

@@ -7,8 +7,11 @@ type Props = {
   initialData?: {
     id: string;
     title: string;
+    description?: string | null;
     scheduledAt: Date;
     zoomUrl: string | null;
+    location?: string | null;
+    isOnline: boolean;
     isNext: boolean;
   };
   onCancel?: () => void;
@@ -31,11 +34,13 @@ export function SeminarForm({ initialData, onCancel }: Props) {
 
   const [form, setForm] = useState({
     title: initialData?.title ?? "",
-    description: (initialData as any)?.description ?? "",
+    description: initialData?.description ?? "",
     date: init.date,
     hour: init.hour,
     minute: init.minute,
     zoomUrl: initialData?.zoomUrl ?? "",
+    location: initialData?.location ?? "",
+    isOnline: initialData?.isOnline ?? true,
     isNext: initialData?.isNext ?? false,
   });
   const [isLoading, setIsLoading] = useState(false);
@@ -48,7 +53,6 @@ export function SeminarForm({ initialData, onCancel }: Props) {
     setError("");
     setSuccess("");
 
-    // JST (+09:00) で送ることでサーバー側のタイムゾーンに関係なく正確に保存
     const scheduledAt = `${form.date}T${form.hour}:${form.minute}:00+09:00`;
 
     try {
@@ -65,8 +69,8 @@ export function SeminarForm({ initialData, onCancel }: Props) {
       if (!res.ok) throw new Error(data.error);
 
       if (!isEdit) {
-        setSuccess("セミナーを追加しました");
-        setForm({ title: "", description: "", date: "", hour: "10", minute: "00", zoomUrl: "", isNext: false });
+        setSuccess("イベントを追加しました");
+        setForm({ title: "", description: "", date: "", hour: "10", minute: "00", zoomUrl: "", location: "", isOnline: true, isNext: false });
       }
       router.refresh();
       onCancel?.();
@@ -87,13 +91,38 @@ export function SeminarForm({ initialData, onCancel }: Props) {
       <div>
         <label className="label">タイトル *</label>
         <input type="text" value={form.title} onChange={(e) => setForm({ ...form, title: e.target.value })}
-          className="input" placeholder="〇月セミナー：テーマ名" required />
+          className="input" placeholder="〇月イベント：テーマ名" required />
       </div>
 
       <div>
         <label className="label">説明</label>
         <textarea value={form.description} onChange={(e) => setForm({ ...form, description: e.target.value })}
-          className="input resize-none" rows={3} placeholder="セミナーの内容や対象者など" />
+          className="input resize-none" rows={3} placeholder="イベントの内容や対象者など" />
+      </div>
+
+      {/* オンライン/オフライン切り替え */}
+      <div>
+        <label className="label">開催形式 *</label>
+        <div className="flex gap-3">
+          <button
+            type="button"
+            onClick={() => setForm({ ...form, isOnline: true })}
+            className={`flex-1 py-2.5 rounded-xl text-sm font-medium border transition-colors ${
+              form.isOnline ? "bg-blue-600 text-white border-blue-600" : "border-gray-200 text-gray-600 hover:border-blue-300"
+            }`}
+          >
+            🌐 オンライン
+          </button>
+          <button
+            type="button"
+            onClick={() => setForm({ ...form, isOnline: false })}
+            className={`flex-1 py-2.5 rounded-xl text-sm font-medium border transition-colors ${
+              !form.isOnline ? "bg-green-600 text-white border-green-600" : "border-gray-200 text-gray-600 hover:border-green-300"
+            }`}
+          >
+            📍 オフライン
+          </button>
+        </div>
       </div>
 
       <div>
@@ -115,18 +144,26 @@ export function SeminarForm({ initialData, onCancel }: Props) {
         </div>
       </div>
 
-      <div>
-        <label className="label">Zoom URL</label>
-        <input type="url" value={form.zoomUrl} onChange={(e) => setForm({ ...form, zoomUrl: e.target.value })}
-          className="input" placeholder="https://zoom.us/j/..." />
-      </div>
+      {form.isOnline ? (
+        <div>
+          <label className="label">Zoom URL</label>
+          <input type="url" value={form.zoomUrl} onChange={(e) => setForm({ ...form, zoomUrl: e.target.value })}
+            className="input" placeholder="https://zoom.us/j/..." />
+        </div>
+      ) : (
+        <div>
+          <label className="label">会場・場所</label>
+          <input type="text" value={form.location} onChange={(e) => setForm({ ...form, location: e.target.value })}
+            className="input" placeholder="例：東京都渋谷区〇〇ビル3F" />
+        </div>
+      )}
 
       <div className="flex items-center gap-3">
         <input type="checkbox" id="isNext" checked={form.isNext}
           onChange={(e) => setForm({ ...form, isNext: e.target.checked })}
           className="w-4 h-4 rounded border-gray-300 text-blue-600 focus:ring-blue-500" />
         <label htmlFor="isNext" className="text-sm font-medium text-gray-700">
-          次回セミナーとしてトップに表示する
+          次回イベントとしてトップに表示する
         </label>
       </div>
 

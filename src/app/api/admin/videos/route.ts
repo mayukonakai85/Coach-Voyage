@@ -57,6 +57,22 @@ export async function POST(req: NextRequest) {
       },
     });
 
+    // 全メンバーに新着通知
+    if (video.isPublished) {
+      const members = await prisma.user.findMany({
+        where: { isActive: true },
+        select: { id: true },
+      });
+      await prisma.notification.createMany({
+        data: members.map((m) => ({
+          userId: m.id,
+          type: "new_video",
+          message: `新しい動画「${video.title}」が公開されました`,
+          link: `/videos/watch/${video.id}`,
+        })),
+      });
+    }
+
     return NextResponse.json(video, { status: 201 });
   } catch (error) {
     console.error("Video create error:", error);

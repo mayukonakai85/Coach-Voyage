@@ -7,8 +7,11 @@ import { SeminarForm } from "./SeminarForm";
 type Seminar = {
   id: string;
   title: string;
+  description?: string | null;
   scheduledAt: Date;
   zoomUrl: string | null;
+  location?: string | null;
+  isOnline: boolean;
   isNext: boolean;
 };
 
@@ -33,7 +36,10 @@ export function SeminarRow({ seminar }: { seminar: Seminar }) {
     return (
       <tr>
         <td colSpan={3} className="px-6 py-4">
-          <SeminarForm initialData={{ ...seminar, scheduledAt: new Date(seminar.scheduledAt) }} onCancel={() => setIsEditing(false)} />
+          <SeminarForm
+            initialData={{ ...seminar, scheduledAt: new Date(seminar.scheduledAt) }}
+            onCancel={() => setIsEditing(false)}
+          />
         </td>
       </tr>
     );
@@ -42,10 +48,15 @@ export function SeminarRow({ seminar }: { seminar: Seminar }) {
   return (
     <tr className="hover:bg-gray-50">
       <td className="px-6 py-4">
-        <div className="flex items-center gap-2">
-          {seminar.isNext && (
-            <span className="bg-blue-100 text-blue-700 text-xs font-bold px-2 py-0.5 rounded-full">次回</span>
-          )}
+        <div className="flex items-start gap-2">
+          <div className="flex flex-col gap-1">
+            {seminar.isNext && (
+              <span className="bg-blue-100 text-blue-700 text-xs font-bold px-2 py-0.5 rounded-full w-fit">次回</span>
+            )}
+            <span className={`text-xs font-bold px-2 py-0.5 rounded-full w-fit ${seminar.isOnline ? "bg-blue-50 text-blue-600" : "bg-green-50 text-green-700"}`}>
+              {seminar.isOnline ? "🌐 オンライン" : "📍 オフライン"}
+            </span>
+          </div>
           <div>
             <p className="font-medium text-gray-900">{seminar.title}</p>
             <p className="text-sm text-gray-500">{dateStr}</p>
@@ -53,13 +64,17 @@ export function SeminarRow({ seminar }: { seminar: Seminar }) {
         </div>
       </td>
       <td className="px-6 py-4 hidden sm:table-cell">
-        {seminar.zoomUrl ? (
-          <a href={seminar.zoomUrl} target="_blank" rel="noopener noreferrer"
-            className="text-sm text-blue-600 hover:underline truncate max-w-xs block">
-            {seminar.zoomUrl}
-          </a>
+        {seminar.isOnline ? (
+          seminar.zoomUrl ? (
+            <a href={seminar.zoomUrl} target="_blank" rel="noopener noreferrer"
+              className="text-sm text-blue-600 hover:underline truncate max-w-xs block">
+              {seminar.zoomUrl}
+            </a>
+          ) : (
+            <span className="text-sm text-gray-400">URL未設定</span>
+          )
         ) : (
-          <span className="text-sm text-gray-400">未設定</span>
+          <span className="text-sm text-gray-600">{seminar.location || "場所未設定"}</span>
         )}
       </td>
       <td className="px-6 py-4 text-right">

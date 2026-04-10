@@ -10,15 +10,15 @@ export default async function AdminSeminarsPage() {
   return (
     <div>
       <div className="mb-8">
-        <h1 className="text-2xl font-bold text-gray-900">セミナー管理</h1>
-        <p className="text-gray-500 mt-1">セミナーの追加・編集・削除ができます</p>
+        <h1 className="text-2xl font-bold text-gray-900">イベント管理</h1>
+        <p className="text-gray-500 mt-1">オンライン・オフラインイベントの追加・編集・削除ができます</p>
       </div>
 
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
         {/* 追加フォーム */}
         <div className="lg:col-span-1">
           <div className="card p-6">
-            <h2 className="font-semibold text-gray-900 mb-4">セミナーを追加</h2>
+            <h2 className="font-semibold text-gray-900 mb-4">イベントを追加</h2>
             <SeminarForm />
           </div>
         </div>
@@ -28,7 +28,7 @@ export default async function AdminSeminarsPage() {
           <div className="card overflow-hidden">
             {seminars.length === 0 ? (
               <div className="p-12 text-center text-gray-400">
-                <p className="font-medium">セミナーがまだありません</p>
+                <p className="font-medium">イベントがまだありません</p>
                 <p className="text-sm mt-1">左のフォームから追加してください</p>
               </div>
             ) : (

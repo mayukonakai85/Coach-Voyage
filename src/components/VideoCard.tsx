@@ -14,6 +14,8 @@ type Video = {
 export function VideoCard({ video }: { video: Video }) {
   const showNumber = video.sortOrder !== undefined && video.sortOrder < 999 && !video.recordedAt;
   const isViewed = video.isViewed ?? false;
+  // 7日以内に公開された動画はNEW扱い
+  const isNew = !isViewed && (Date.now() - new Date(video.publishedAt).getTime()) < 7 * 24 * 60 * 60 * 1000;
 
   const recordedDate = video.recordedAt
     ? new Date(video.recordedAt).toLocaleDateString("ja-JP", {
@@ -66,8 +68,15 @@ export function VideoCard({ video }: { video: Video }) {
             </div>
           )}
 
+          {/* NEWバッジ */}
+          {isNew && (
+            <div className="absolute top-2 right-2 bg-red-500 text-white text-xs font-black px-2 py-0.5 rounded-full">
+              NEW
+            </div>
+          )}
+
           {/* 視聴済みバッジ */}
-          {isViewed && (
+          {isViewed && !isNew && (
             <div className="absolute top-2 right-2 bg-green-500 text-white text-xs font-bold px-2 py-0.5 rounded-full flex items-center gap-1">
               <svg className="w-3 h-3" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={3} d="M5 13l4 4L19 7" />

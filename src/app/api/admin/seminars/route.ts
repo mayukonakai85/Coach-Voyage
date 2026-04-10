@@ -13,9 +13,7 @@ export async function GET() {
   const session = await requireAdmin();
   if (!session) return NextResponse.json({ error: "Forbidden" }, { status: 403 });
 
-  const seminars = await prisma.seminar.findMany({
-    orderBy: { scheduledAt: "asc" },
-  });
+  const seminars = await prisma.seminar.findMany({ orderBy: { scheduledAt: "asc" } });
   return NextResponse.json(seminars);
 }
 
@@ -23,17 +21,23 @@ export async function POST(req: NextRequest) {
   const session = await requireAdmin();
   if (!session) return NextResponse.json({ error: "Forbidden" }, { status: 403 });
 
-  const { title, description, scheduledAt, zoomUrl, isNext } = await req.json();
+  const { title, description, scheduledAt, zoomUrl, location, isOnline, isNext } = await req.json();
   if (!title || !scheduledAt) {
     return NextResponse.json({ error: "タイトルと日時は必須です" }, { status: 400 });
   }
 
-  if (isNext) {
-    await prisma.seminar.updateMany({ data: { isNext: false } });
-  }
+  if (isNext) await prisma.seminar.updateMany({ data: { isNext: false } });
 
   const seminar = await prisma.seminar.create({
-    data: { title, description: description || null, scheduledAt: new Date(scheduledAt), zoomUrl: zoomUrl || null, isNext: isNext ?? false },
+    data: {
+      title,
+      description: description || null,
+      scheduledAt: new Date(scheduledAt),
+      zoomUrl: zoomUrl || null,
+      location: location || null,
+      isOnline: isOnline ?? true,
+      isNext: isNext ?? false,
+    },
   });
 
   return NextResponse.json(seminar, { status: 201 });

@@ -7,6 +7,8 @@ type Seminar = {
   title: string;
   scheduledAt: Date | string;
   zoomUrl?: string | null;
+  location?: string | null;
+  isOnline?: boolean;
 };
 
 export function MonthCalendar({ seminars }: { seminars: Seminar[] }) {
@@ -15,7 +17,7 @@ export function MonthCalendar({ seminars }: { seminars: Seminar[] }) {
   const [month, setMonth] = useState(today.getMonth());
   const [selectedDate, setSelectedDate] = useState<string | null>(null);
 
-  // 日付キー → セミナー一覧のマップ
+  // 日付キー → セミナー一覧
   const seminarMap = new Map<string, Seminar[]>();
   seminars.forEach((s) => {
     const d = new Date(s.scheduledAt);
@@ -43,8 +45,15 @@ export function MonthCalendar({ seminars }: { seminars: Seminar[] }) {
   }
 
   const weekdays = ["日", "月", "火", "水", "木", "金", "土"];
-
   const selectedSeminars = selectedDate ? (seminarMap.get(selectedDate) ?? []) : [];
+
+  // その月にオンライン・オフラインどちらがあるか
+  const hasOnline = Array.from(seminarMap.entries()).some(([key, list]) =>
+    key.startsWith(`${year}-${month}-`) && list.some(s => s.isOnline !== false)
+  );
+  const hasOffline = Array.from(seminarMap.entries()).some(([key, list]) =>
+    key.startsWith(`${year}-${month}-`) && list.some(s => s.isOnline === false)
+  );
 
   return (
     <div>
@@ -84,15 +93,21 @@ export function MonthCalendar({ seminars }: { seminars: Seminar[] }) {
           const col = i % 7;
           const textColor = col === 0 ? "text-red-500" : col === 6 ? "text-blue-500" : "text-gray-700";
 
+          // オンライン優先で色を決定、両方あれば青
+          const hasOnlineEvent = daySeminars.some(s => s.isOnline !== false);
+          const hasOfflineEvent = daySeminars.some(s => s.isOnline === false);
+          const ringColor = hasOnlineEvent ? "ring-blue-400 bg-blue-100 text-blue-800" : "ring-green-400 bg-green-100 text-green-800";
+          const selectedColor = hasOnlineEvent ? "bg-blue-600 text-white" : "bg-green-600 text-white";
+
           return (
             <div key={day} className="flex flex-col items-center">
               <button
                 onClick={() => setSelectedDate(isSelected ? null : key)}
                 className={`w-8 h-8 flex items-center justify-center rounded-full text-xs font-medium transition-all ${
                   isSelected
-                    ? "bg-blue-600 text-white shadow-md"
+                    ? `${selectedColor} shadow-md`
                     : hasSeminar
-                    ? "bg-blue-100 text-blue-800 font-bold ring-2 ring-blue-400 hover:bg-blue-200"
+                    ? `${ringColor} font-bold ring-2 hover:opacity-80`
                     : isToday
                     ? "bg-gray-800 text-white font-bold"
                     : `${textColor} hover:bg-gray-100`
@@ -100,8 +115,12 @@ export function MonthCalendar({ seminars }: { seminars: Seminar[] }) {
               >
                 {day}
               </button>
+              {/* 両方ある日はドットを2色表示 */}
               {hasSeminar && !isSelected && (
-                <span className="w-1.5 h-1.5 rounded-full bg-blue-500 mt-0.5" />
+                <div className="flex gap-0.5 mt-0.5">
+                  {hasOnlineEvent && <span className="w-1.5 h-1.5 rounded-full bg-blue-500" />}
+                  {hasOfflineEvent && <span className="w-1.5 h-1.5 rounded-full bg-green-500" />}
+                </div>
               )}
             </div>
           );
@@ -109,38 +128,50 @@ export function MonthCalendar({ seminars }: { seminars: Seminar[] }) {
       </div>
 
       {/* 凡例 */}
-      <div className="flex items-center gap-4 mt-3 px-1">
-        <div className="flex items-center gap-1.5">
-          <div className="w-6 h-6 rounded-full bg-blue-100 ring-2 ring-blue-400 flex items-center justify-center">
-            <span className="text-xs font-bold text-blue-800">9</span>
-          </div>
-          <span className="text-xs text-gray-500">セミナーあり</span>
+      {(hasOnline || hasOffline) && (
+        <div className="flex items-center gap-4 mt-3 px-1">
+          {hasOnline && (
+            <div className="flex items-center gap-1.5">
+              <span className="w-2.5 h-2.5 rounded-full bg-blue-500" />
+              <span className="text-xs text-gray-500">オンライン</span>
+            </div>
+          )}
+          {hasOffline && (
+            <div className="flex items-center gap-1.5">
+              <span className="w-2.5 h-2.5 rounded-full bg-green-500" />
+              <span className="text-xs text-gray-500">オフライン</span>
+            </div>
+          )}
         </div>
-      </div>
+      )}
 
-      {/* 選択日のセミナー詳細 */}
+      {/* 選択日の詳細 */}
       {selectedSeminars.length > 0 && (
         <div className="mt-4 space-y-2">
           {selectedSeminars.map((s) => {
             const d = new Date(s.scheduledAt);
             const time = d.toLocaleTimeString("ja-JP", { hour: "2-digit", minute: "2-digit" });
+            const isOnline = s.isOnline !== false;
             return (
-              <div key={s.id} className="bg-blue-50 border border-blue-200 rounded-xl p-3">
-                <p className="text-xs font-bold text-blue-700 mb-0.5">{time}〜</p>
+              <div key={s.id} className={`border rounded-xl p-3 ${isOnline ? "bg-blue-50 border-blue-200" : "bg-green-50 border-green-200"}`}>
+                <div className="flex items-center gap-2 mb-1">
+                  <span className={`text-xs font-bold px-2 py-0.5 rounded-full ${isOnline ? "bg-blue-100 text-blue-700" : "bg-green-100 text-green-700"}`}>
+                    {isOnline ? "🌐 オンライン" : "📍 オフライン"}
+                  </span>
+                  <p className="text-xs font-bold text-gray-500">{time}〜</p>
+                </div>
                 <p className="text-sm font-semibold text-gray-900">{s.title}</p>
-                {s.zoomUrl && (
-                  <a
-                    href={s.zoomUrl}
-                    target="_blank"
-                    rel="noopener noreferrer"
-                    className="inline-flex items-center gap-1 text-xs text-blue-600 hover:underline mt-1 font-medium"
-                  >
+                {isOnline && s.zoomUrl ? (
+                  <a href={s.zoomUrl} target="_blank" rel="noopener noreferrer"
+                    className="inline-flex items-center gap-1 text-xs text-blue-600 hover:underline mt-1.5 font-medium">
                     <svg className="w-3 h-3" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                       <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 10l4.553-2.069A1 1 0 0121 8.845v6.31a1 1 0 01-1.447.894L15 14M5 18h8a2 2 0 002-2V8a2 2 0 00-2-2H5a2 2 0 00-2 2v8a2 2 0 002 2z" />
                     </svg>
                     Zoomで参加する
                   </a>
-                )}
+                ) : !isOnline && s.location ? (
+                  <p className="text-xs text-green-700 mt-1">📍 {s.location}</p>
+                ) : null}
               </div>
             );
           })}

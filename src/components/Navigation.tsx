@@ -36,7 +36,7 @@ export function Navigation() {
   const adminLinks = [
     { href: "/admin", label: "管理トップ", exact: true },
     { href: "/admin/analytics", label: "視聴データ" },
-    { href: "/admin/seminars", label: "セミナー管理" },
+    { href: "/admin/seminars", label: "イベント管理" },
     { href: "/admin/videos", label: "動画管理" },
     { href: "/admin/members", label: "会員管理" },
     { href: "/admin/tags", label: "タグ管理" },
