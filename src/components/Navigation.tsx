@@ -16,7 +16,6 @@ export function Navigation() {
     { href: "/videos", label: "Voyage Library", exact: false },
     { href: "/notes", label: "ノート", exact: false },
     { href: "/members", label: "メンバー", exact: false },
-    { href: "/profile", label: "マイページ", exact: false },
   ];
 
   const isAdminActive = pathname.startsWith("/admin");
