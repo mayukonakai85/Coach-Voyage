@@ -24,15 +24,21 @@ export async function POST(req: NextRequest) {
   const ext = file.name.split(".").pop() ?? "jpg";
   const filename = `avatars/${session.user.id}.${ext}`;
 
-  const blob = await put(filename, file, {
-    access: "public",
-    allowOverwrite: true,
-  });
+  try {
+    const blob = await put(filename, file, {
+      access: "public",
+      allowOverwrite: true,
+    });
 
-  await prisma.user.update({
-    where: { id: session.user.id },
-    data: { avatarUrl: blob.url },
-  });
+    await prisma.user.update({
+      where: { id: session.user.id },
+      data: { avatarUrl: blob.url },
+    });
 
-  return NextResponse.json({ avatarUrl: blob.url });
+    return NextResponse.json({ avatarUrl: blob.url });
+  } catch (err) {
+    console.error("Avatar upload error:", err);
+    const message = err instanceof Error ? err.message : "アップロードに失敗しました";
+    return NextResponse.json({ error: message }, { status: 500 });
+  }
 }

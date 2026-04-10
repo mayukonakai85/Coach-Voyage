@@ -108,11 +108,17 @@ export function ProfileEditor({
       const res = await fetch("/api/profile/avatar", { method: "POST", body: form });
       if (res.ok) {
         const data = await res.json();
-        setAvatarUrl(data.avatarUrl + "?t=" + Date.now()); // キャッシュバスト
+        setAvatarUrl(data.avatarUrl + "?t=" + Date.now());
       } else {
-        const data = await res.json();
-        setError(data.error ?? "アップロードに失敗しました");
+        let errMsg = "アップロードに失敗しました";
+        try {
+          const data = await res.json();
+          if (data.error) errMsg = data.error;
+        } catch {}
+        setError(errMsg);
       }
+    } catch {
+      setError("通信エラーが発生しました");
     } finally {
       setUploading(false);
     }
