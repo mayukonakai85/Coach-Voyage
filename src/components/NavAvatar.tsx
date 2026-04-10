@@ -11,7 +11,7 @@ export function NavAvatar({ name, fallbackUrl }: { name: string; fallbackUrl: st
     fetch("/api/profile")
       .then((r) => r.json())
       .then((data) => {
-        if (data?.avatarUrl) setAvatarUrl(data.avatarUrl + "?t=" + Date.now());
+        if (data?.avatarUrl) setAvatarUrl(data.avatarUrl);
       })
       .catch(() => {});
   }, []);
