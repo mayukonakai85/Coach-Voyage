@@ -62,6 +62,27 @@ export async function POST(
   // 通知を作成
   const link = `/videos/watch/${params.id}`;
 
+  // メンション通知（@名前 を解析）
+  const mentionPattern = /@([^\s@]+(?:\s[^\s@]+)*)/g;
+  const mentionNames = [...content.matchAll(mentionPattern)].map(m => m[1].trim());
+  if (mentionNames.length > 0) {
+    const mentionedUsers = await prisma.user.findMany({
+      where: { name: { in: mentionNames }, isActive: true, id: { not: session.user.id } },
+      select: { id: true },
+    });
+    if (mentionedUsers.length > 0) {
+      await prisma.notification.createMany({
+        data: mentionedUsers.map(u => ({
+          userId: u.id,
+          type: "mention",
+          message: `${session.user.name} さんがコメントであなたをメンションしました`,
+          link,
+        })),
+        skipDuplicates: true,
+      });
+    }
+  }
+
   if (parentId) {
     // 返信 → 元コメント投稿者に通知
     const parent = await prisma.comment.findUnique({ where: { id: parentId }, select: { userId: true } });

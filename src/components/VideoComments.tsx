@@ -3,6 +3,8 @@
 import { useState, useEffect, useRef } from "react";
 import { Avatar } from "@/components/Avatar";
 
+type Member = { id: string; name: string; avatarUrl: string | null };
+
 type CommentData = {
   id: string;
   content: string;
@@ -17,11 +19,128 @@ function formatDate(dateStr: string) {
   return d.toLocaleDateString("ja-JP", { month: "numeric", day: "numeric", hour: "2-digit", minute: "2-digit" });
 }
 
+// @名前 をハイライト表示
+function renderWithMentions(content: string) {
+  const parts = content.split(/(@\S+)/g);
+  return parts.map((part, i) =>
+    part.startsWith("@") ? (
+      <span key={i} className="text-blue-600 font-semibold">{part}</span>
+    ) : (
+      <span key={i}>{part}</span>
+    )
+  );
+}
+
+// メンション対応テキストエリア
+function MentionTextarea({
+  value,
+  onChange,
+  onKeyDown,
+  placeholder,
+  rows,
+  className,
+  members,
+}: {
+  value: string;
+  onChange: (val: string) => void;
+  onKeyDown?: (e: React.KeyboardEvent<HTMLTextAreaElement>) => void;
+  placeholder?: string;
+  rows?: number;
+  className?: string;
+  members: Member[];
+}) {
+  const [mentionQuery, setMentionQuery] = useState<string | null>(null);
+  const [mentionStart, setMentionStart] = useState(0);
+  const [menuIndex, setMenuIndex] = useState(0);
+  const textareaRef = useRef<HTMLTextAreaElement>(null);
+
+  const filtered = mentionQuery !== null
+    ? members.filter(m => m.name.toLowerCase().includes(mentionQuery.toLowerCase())).slice(0, 6)
+    : [];
+
+  function handleInput(e: React.ChangeEvent<HTMLTextAreaElement>) {
+    const val = e.target.value;
+    const cursor = e.target.selectionStart ?? 0;
+    onChange(val);
+
+    // カーソル位置より前の文字列で @xxx を探す
+    const before = val.slice(0, cursor);
+    const match = before.match(/@(\S*)$/);
+    if (match) {
+      setMentionQuery(match[1]);
+      setMentionStart(cursor - match[0].length);
+      setMenuIndex(0);
+    } else {
+      setMentionQuery(null);
+    }
+  }
+
+  function handleSelect(member: Member) {
+    const cursor = textareaRef.current?.selectionStart ?? 0;
+    const before = value.slice(0, mentionStart);
+    const after = value.slice(cursor);
+    const inserted = `@${member.name} `;
+    onChange(before + inserted + after);
+    setMentionQuery(null);
+    setTimeout(() => {
+      const pos = mentionStart + inserted.length;
+      textareaRef.current?.setSelectionRange(pos, pos);
+      textareaRef.current?.focus();
+    }, 0);
+  }
+
+  function handleKeyDownInner(e: React.KeyboardEvent<HTMLTextAreaElement>) {
+    if (mentionQuery !== null && filtered.length > 0) {
+      if (e.key === "ArrowDown") { e.preventDefault(); setMenuIndex(i => Math.min(i + 1, filtered.length - 1)); return; }
+      if (e.key === "ArrowUp") { e.preventDefault(); setMenuIndex(i => Math.max(i - 1, 0)); return; }
+      if (e.key === "Enter" && !e.metaKey && !e.ctrlKey) { e.preventDefault(); handleSelect(filtered[menuIndex]); return; }
+      if (e.key === "Escape") { setMentionQuery(null); return; }
+    }
+    onKeyDown?.(e);
+  }
+
+  return (
+    <div className="relative flex-1">
+      <textarea
+        ref={textareaRef}
+        value={value}
+        onChange={handleInput}
+        onKeyDown={handleKeyDownInner}
+        rows={rows}
+        placeholder={placeholder}
+        className={className}
+      />
+      {mentionQuery !== null && filtered.length > 0 && (
+        <div className="absolute bottom-full left-0 mb-1 w-56 bg-white rounded-xl shadow-xl border border-gray-200 py-1 z-50 overflow-hidden">
+          <p className="text-xs text-gray-400 px-3 py-1">メンバーを選択</p>
+          {filtered.map((m, i) => (
+            <button
+              key={m.id}
+              type="button"
+              onMouseDown={(e) => { e.preventDefault(); handleSelect(m); }}
+              className={`w-full flex items-center gap-2 px-3 py-2 text-left transition-colors ${i === menuIndex ? "bg-blue-50 text-blue-700" : "hover:bg-gray-50"}`}
+            >
+              {m.avatarUrl ? (
+                // eslint-disable-next-line @next/next/no-img-element
+                <img src={m.avatarUrl} alt={m.name} className="w-6 h-6 rounded-full object-cover shrink-0" />
+              ) : (
+                <div className="w-6 h-6 rounded-full bg-blue-400 text-white text-xs font-bold flex items-center justify-center shrink-0">{m.name.charAt(0)}</div>
+              )}
+              <span className="text-sm font-medium truncate">{m.name}</span>
+            </button>
+          ))}
+        </div>
+      )}
+    </div>
+  );
+}
+
 function CommentItem({
   comment,
   currentUserId,
   currentUserRole,
   videoId,
+  members,
   onDelete,
   onReplyPosted,
   depth = 0,
@@ -30,6 +149,7 @@ function CommentItem({
   currentUserId: string;
   currentUserRole: string;
   videoId: string;
+  members: Member[];
   onDelete: (id: string) => void;
   onReplyPosted: (parentId: string, reply: CommentData) => void;
   depth?: number;
@@ -93,9 +213,10 @@ function CommentItem({
               </button>
             )}
           </div>
-          <p className="text-sm text-gray-700 mt-1 whitespace-pre-wrap break-words leading-relaxed">{comment.content}</p>
+          <p className="text-sm text-gray-700 mt-1 whitespace-pre-wrap break-words leading-relaxed">
+            {renderWithMentions(comment.content)}
+          </p>
           <div className="flex items-center gap-3 mt-2">
-            {/* いいね */}
             <button
               onClick={handleLike}
               className={`flex items-center gap-1 text-xs transition-colors ${isLiked ? "text-red-500" : "text-gray-300 hover:text-red-400"}`}
@@ -103,7 +224,6 @@ function CommentItem({
               <span className="text-sm">{isLiked ? "❤️" : "🤍"}</span>
               {likeCount > 0 && <span>{likeCount}</span>}
             </button>
-            {/* 返信（ネストは1段まで） */}
             {depth === 0 && (
               <button
                 onClick={() => setShowReply((v) => !v)}
@@ -116,16 +236,16 @@ function CommentItem({
         </div>
       </div>
 
-      {/* 返信フォーム */}
       {showReply && (
         <div className="ml-8 mt-2 flex gap-2 items-end">
-          <textarea
+          <MentionTextarea
             value={replyText}
-            onChange={(e) => setReplyText(e.target.value)}
+            onChange={setReplyText}
             onKeyDown={(e) => { if (e.key === "Enter" && (e.metaKey || e.ctrlKey)) handleReply(); }}
             rows={2}
-            placeholder="返信を入力…"
-            className="flex-1 rounded-xl border border-blue-200 bg-white px-3 py-2 text-sm text-gray-800 placeholder-gray-300 focus:border-blue-400 focus:outline-none focus:ring-1 focus:ring-blue-300 resize-none"
+            placeholder="返信を入力… （@で メンション）"
+            className="w-full rounded-xl border border-blue-200 bg-white px-3 py-2 text-sm text-gray-800 placeholder-gray-300 focus:border-blue-400 focus:outline-none focus:ring-1 focus:ring-blue-300 resize-none"
+            members={members}
           />
           <div className="flex flex-col gap-1">
             <button
@@ -140,7 +260,6 @@ function CommentItem({
         </div>
       )}
 
-      {/* 返信一覧 */}
       {comment.replies?.map((reply) => (
         <CommentItem
           key={reply.id}
@@ -148,6 +267,7 @@ function CommentItem({
           currentUserId={currentUserId}
           currentUserRole={currentUserRole}
           videoId={videoId}
+          members={members}
           onDelete={onDelete}
           onReplyPosted={onReplyPosted}
           depth={1}
@@ -167,6 +287,7 @@ export function VideoComments({
   currentUserRole: string;
 }) {
   const [comments, setComments] = useState<CommentData[]>([]);
+  const [members, setMembers] = useState<Member[]>([]);
   const [text, setText] = useState("");
   const [isPosting, setIsPosting] = useState(false);
   const bottomRef = useRef<HTMLDivElement>(null);
@@ -175,6 +296,9 @@ export function VideoComments({
     fetch(`/api/videos/${videoId}/comments`)
       .then((r) => r.json())
       .then((data) => { if (Array.isArray(data)) setComments(data); });
+    fetch("/api/members")
+      .then((r) => r.json())
+      .then((data) => { if (Array.isArray(data)) setMembers(data); });
   }, [videoId]);
 
   async function handlePost() {
@@ -199,16 +323,17 @@ export function VideoComments({
 
   function handleDelete(commentId: string) {
     fetch(`/api/videos/${videoId}/comments/${commentId}`, { method: "DELETE" });
-    setComments((prev) => prev
-      .filter((c) => c.id !== commentId)
-      .map((c) => ({ ...c, replies: c.replies?.filter((r) => r.id !== commentId) ?? [] }))
+    setComments((prev) =>
+      prev
+        .filter((c) => c.id !== commentId)
+        .map((c) => ({ ...c, replies: c.replies?.filter((r) => r.id !== commentId) ?? [] }))
     );
   }
 
   function handleReplyPosted(parentId: string, reply: CommentData) {
-    setComments((prev) => prev.map((c) =>
-      c.id === parentId ? { ...c, replies: [...(c.replies ?? []), reply] } : c
-    ));
+    setComments((prev) =>
+      prev.map((c) => c.id === parentId ? { ...c, replies: [...(c.replies ?? []), reply] } : c)
+    );
   }
 
   const totalCount = comments.reduce((acc, c) => acc + 1 + (c.replies?.length ?? 0), 0);
@@ -226,7 +351,7 @@ export function VideoComments({
           <span className="text-xs font-semibold text-blue-500 bg-blue-100 px-2 py-0.5 rounded-full">{totalCount}</span>
         )}
       </div>
-      <p className="text-xs text-blue-700/50 mb-4">メンバー全員に公開されます</p>
+      <p className="text-xs text-blue-700/50 mb-4">メンバー全員に公開されます・@ でメンション可</p>
 
       {comments.length === 0 ? (
         <div className="text-center py-6 mb-3">
@@ -242,6 +367,7 @@ export function VideoComments({
               currentUserId={currentUserId}
               currentUserRole={currentUserRole}
               videoId={videoId}
+              members={members}
               onDelete={handleDelete}
               onReplyPosted={handleReplyPosted}
             />
@@ -251,13 +377,14 @@ export function VideoComments({
       )}
 
       <div className="flex gap-2 items-end border-t border-blue-100 pt-4">
-        <textarea
+        <MentionTextarea
           value={text}
-          onChange={(e) => setText(e.target.value)}
+          onChange={setText}
           onKeyDown={(e) => { if (e.key === "Enter" && (e.metaKey || e.ctrlKey)) handlePost(); }}
           rows={2}
-          placeholder="感想や質問を書いてみよう（⌘+Enter で送信）"
-          className="flex-1 rounded-xl border border-blue-200 bg-white px-3 py-2 text-sm text-gray-800 placeholder-gray-300 focus:border-blue-400 focus:outline-none focus:ring-1 focus:ring-blue-300 resize-none"
+          placeholder="感想や質問を書いてみよう（@ でメンション・⌘+Enter で送信）"
+          className="w-full rounded-xl border border-blue-200 bg-white px-3 py-2 text-sm text-gray-800 placeholder-gray-300 focus:border-blue-400 focus:outline-none focus:ring-1 focus:ring-blue-300 resize-none"
+          members={members}
         />
         <button
           onClick={handlePost}
