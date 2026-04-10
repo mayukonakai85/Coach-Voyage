@@ -4,6 +4,7 @@ import { prisma } from "@/lib/db";
 import { SeminarCalendar } from "@/components/SeminarCalendar";
 import { MonthCalendar } from "@/components/MonthCalendar";
 import { WelcomePopup } from "@/components/WelcomePopup";
+import { UsageGuide } from "@/components/UsageGuide";
 import Link from "next/link";
 
 export default async function HomePage() {
@@ -75,22 +76,7 @@ export default async function HomePage() {
       </div>
 
       {/* サイトの使い方 */}
-      <div className="grid grid-cols-2 sm:grid-cols-4 gap-3">
-        {[
-          { icon: "🎬", title: "Voyage Library", desc: "動画を視聴する", href: "/videos" },
-          { icon: "📝", title: "学習ノート", desc: "動画のメモを確認", href: "/notes" },
-          { icon: "👥", title: "メンバー", desc: "メンバーを見る", href: "/members" },
-          { icon: "👤", title: "マイページ", desc: "プロフィールを編集", href: "/profile" },
-        ].map((item) => (
-          <Link key={item.title} href={item.href} className="group flex items-center gap-3 rounded-xl bg-white border border-gray-200 hover:border-blue-300 hover:bg-blue-50 px-4 py-3 transition-colors">
-            <span className="text-xl shrink-0">{item.icon}</span>
-            <div className="min-w-0">
-              <p className="font-bold text-sm text-gray-900 group-hover:text-blue-700 transition-colors leading-tight">{item.title}</p>
-              <p className="text-xs text-gray-400 truncate">{item.desc}</p>
-            </div>
-          </Link>
-        ))}
-      </div>
+      <UsageGuide />
 
       {/* 次回セミナー：横長バナー */}
       {nextSeminar ? (
