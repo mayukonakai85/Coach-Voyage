@@ -103,12 +103,14 @@ export function ProfileEditor({
     setUploading(true);
     setError("");
     try {
+      // Canvas でリサイズ（最大 300x300）してからアップロード
+      const resizedBlob = await resizeImage(file, 300);
       const form = new FormData();
-      form.append("file", file);
+      form.append("file", resizedBlob, "avatar.jpg");
       const res = await fetch("/api/profile/avatar", { method: "POST", body: form });
       if (res.ok) {
         const data = await res.json();
-        setAvatarUrl(data.avatarUrl + "?t=" + Date.now());
+        setAvatarUrl(data.avatarUrl);
       } else {
         let errMsg = "アップロードに失敗しました";
         try {
@@ -122,6 +124,29 @@ export function ProfileEditor({
     } finally {
       setUploading(false);
     }
+  }
+
+  function resizeImage(file: File, maxSize: number): Promise<Blob> {
+    return new Promise((resolve, reject) => {
+      const img = new Image();
+      const url = URL.createObjectURL(file);
+      img.onload = () => {
+        URL.revokeObjectURL(url);
+        const scale = Math.min(1, maxSize / Math.max(img.width, img.height));
+        const w = Math.round(img.width * scale);
+        const h = Math.round(img.height * scale);
+        const canvas = document.createElement("canvas");
+        canvas.width = w;
+        canvas.height = h;
+        canvas.getContext("2d")!.drawImage(img, 0, 0, w, h);
+        canvas.toBlob((blob) => {
+          if (blob) resolve(blob);
+          else reject(new Error("リサイズ失敗"));
+        }, "image/jpeg", 0.85);
+      };
+      img.onerror = reject;
+      img.src = url;
+    });
   }
 
   function toggleTag(id: string) {
