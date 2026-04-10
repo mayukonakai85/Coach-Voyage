@@ -9,10 +9,25 @@ import Link from "next/link";
 export default async function HomePage() {
   const session = await getServerSession(authOptions);
 
+  const now = new Date();
+
+  // isNext のセミナーが過去になっていたら自動で次のセミナーに切り替える
+  const currentNext = await prisma.seminar.findFirst({ where: { isNext: true } });
+  if (currentNext && currentNext.scheduledAt < now) {
+    const nextUpcoming = await prisma.seminar.findFirst({
+      where: { scheduledAt: { gte: now } },
+      orderBy: { scheduledAt: "asc" },
+    });
+    await prisma.seminar.updateMany({ data: { isNext: false } });
+    if (nextUpcoming) {
+      await prisma.seminar.update({ where: { id: nextUpcoming.id }, data: { isNext: true } });
+    }
+  }
+
   const [nextSeminar, seminars, userProfile] = await Promise.all([
     prisma.seminar.findFirst({ where: { isNext: true } }),
     prisma.seminar.findMany({
-      where: { scheduledAt: { gte: new Date() } },
+      where: { scheduledAt: { gte: now } },
       orderBy: { scheduledAt: "asc" },
     }),
     session ? prisma.user.findUnique({

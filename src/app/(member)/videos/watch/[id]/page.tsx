@@ -8,6 +8,7 @@ import { getCategoryByName } from "@/lib/categories";
 import { VideoPlayer } from "@/components/VideoPlayer";
 import { LearningNote } from "@/components/LearningNote";
 import { VideoComments } from "@/components/VideoComments";
+import { VideoLikeButton } from "@/components/VideoLikeButton";
 
 export default async function VideoDetailPage({
   params,
@@ -16,10 +17,15 @@ export default async function VideoDetailPage({
 }) {
   const session = await getServerSession(authOptions);
 
-  const [video, note] = await Promise.all([
+  const [video, note, videoLike] = await Promise.all([
     prisma.video.findFirst({ where: { id: params.id, isPublished: true } }),
     session
       ? prisma.note.findUnique({
+          where: { userId_videoId: { userId: session.user.id, videoId: params.id } },
+        })
+      : null,
+    session
+      ? prisma.like.findUnique({
           where: { userId_videoId: { userId: session.user.id, videoId: params.id } },
         })
       : null,
@@ -27,6 +33,7 @@ export default async function VideoDetailPage({
 
   if (!video) notFound();
 
+  const likeCount = await prisma.like.count({ where: { videoId: params.id } });
   const signedEmbedUrl = generateBunnySignedEmbedUrl(video.bunnyVideoId);
   const cat = getCategoryByName(video.category);
 
@@ -72,10 +79,15 @@ export default async function VideoDetailPage({
 
       {/* 動画情報 */}
       <div className="card p-6">
-        <h1 className="text-2xl font-bold text-gray-900 mb-4">{video.title}</h1>
+        <div className="flex items-start justify-between gap-4">
+          <h1 className="text-2xl font-bold text-gray-900">{video.title}</h1>
+          {session && (
+            <VideoLikeButton videoId={video.id} initialLiked={!!videoLike} initialCount={likeCount} />
+          )}
+        </div>
 
         {/* 日付情報 */}
-        <div className="flex flex-wrap gap-4 mb-4">
+        <div className="flex flex-wrap gap-4 mt-4 mb-4">
           {recordedDate && (
             <div className="flex items-center gap-1.5 text-sm text-gray-600">
               <svg className="w-4 h-4 text-gray-400 shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor">

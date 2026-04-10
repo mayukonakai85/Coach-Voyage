@@ -41,7 +41,7 @@ export async function PUT(
         sortOrder: sortOrder ?? 0,
         publishedAt: publishedAt ? new Date(publishedAt) : undefined,
         isPublished: isPublished ?? true,
-        schedulePublishAt: schedulePublishAt ? new Date(schedulePublishAt.length === 13 ? schedulePublishAt + ":00:00+09:00" : schedulePublishAt) : null,
+        schedulePublishAt: schedulePublishAt ? new Date(schedulePublishAt + ":00:00+09:00") : null,
       },
     });
 

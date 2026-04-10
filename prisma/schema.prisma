@@ -34,9 +34,11 @@ model User {
 
   // フェーズ2: セミナー予約との関連
   // registrations Registration[]
-  views       VideoView[]
-  notes       Note[]
-  comments    Comment[]
+  views         VideoView[]
+  notes         Note[]
+  comments      Comment[]
+  likes         Like[]
+  notifications Notification[]
 }
 
 // 動画アーカイブ
@@ -57,6 +59,7 @@ model Video {
   views        VideoView[]
   notes        Note[]
   comments     Comment[]
+  likes        Like[]
 }
 
 // 学習ノート（動画ごとの個人メモ）
@@ -79,9 +82,40 @@ model Comment {
   userId    String
   videoId   String
   content   String
+  parentId  String?  // 返信先コメントID（nullならトップレベル）
   createdAt DateTime @default(now())
   user      User     @relation(fields: [userId], references: [id])
   video     Video    @relation(fields: [videoId], references: [id], onDelete: Cascade)
+  parent    Comment?  @relation("CommentReplies", fields: [parentId], references: [id], onDelete: Cascade)
+  replies   Comment[] @relation("CommentReplies")
+  likes     Like[]
+}
+
+// いいね（コメント or 動画）
+model Like {
+  id        String   @id @default(cuid())
+  userId    String
+  videoId   String?
+  commentId String?
+  createdAt DateTime @default(now())
+  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  video     Video?   @relation(fields: [videoId], references: [id], onDelete: Cascade)
+  comment   Comment? @relation(fields: [commentId], references: [id], onDelete: Cascade)
+
+  @@unique([userId, videoId])
+  @@unique([userId, commentId])
+}
+
+// 通知
+model Notification {
+  id        String   @id @default(cuid())
+  userId    String   // 通知を受け取るユーザー
+  type      String   // "comment" | "reply" | "like"
+  message   String
+  link      String   // 遷移先URL
+  isRead    Boolean  @default(false)
+  createdAt DateTime @default(now())
+  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
 }
 
 // 視聴履歴

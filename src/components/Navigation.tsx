@@ -5,6 +5,7 @@ import { useSession, signOut } from "next-auth/react";
 import { usePathname } from "next/navigation";
 import { useState, useRef, useEffect } from "react";
 import { NavAvatar } from "@/components/NavAvatar";
+import { NotificationBell } from "@/components/NotificationBell";
 
 export function Navigation() {
   const { data: session } = useSession();
@@ -109,6 +110,7 @@ export function Navigation() {
 
           {/* ユーザーメニュー */}
           <div className="flex items-center gap-2">
+            <NotificationBell />
             <Link href="/profile" className="hidden sm:flex items-center gap-2 hover:opacity-80 transition-opacity">
               {session?.user?.name && <NavAvatar name={session.user.name} fallbackUrl={session.user.avatarUrl} />}
               <div className="text-right">
