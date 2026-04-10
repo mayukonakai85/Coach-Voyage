@@ -74,6 +74,24 @@ export default async function HomePage() {
         </h1>
       </div>
 
+      {/* サイトの使い方 */}
+      <div className="grid grid-cols-2 sm:grid-cols-4 gap-3">
+        {[
+          { icon: "🎬", title: "Voyage Library", desc: "動画を視聴する", href: "/videos" },
+          { icon: "📝", title: "学習ノート", desc: "動画のメモを確認", href: "/notes" },
+          { icon: "👥", title: "メンバー", desc: "メンバーを見る", href: "/members" },
+          { icon: "👤", title: "マイページ", desc: "プロフィールを編集", href: "/profile" },
+        ].map((item) => (
+          <Link key={item.title} href={item.href} className="group flex items-center gap-3 rounded-xl bg-white border border-gray-200 hover:border-blue-300 hover:bg-blue-50 px-4 py-3 transition-colors">
+            <span className="text-xl shrink-0">{item.icon}</span>
+            <div className="min-w-0">
+              <p className="font-bold text-sm text-gray-900 group-hover:text-blue-700 transition-colors leading-tight">{item.title}</p>
+              <p className="text-xs text-gray-400 truncate">{item.desc}</p>
+            </div>
+          </Link>
+        ))}
+      </div>
+
       {/* 次回セミナー：横長バナー */}
       {nextSeminar ? (
         <NextSeminarBanner seminar={nextSeminar} />
@@ -102,44 +120,6 @@ export default async function HomePage() {
         </div>
       </div>
 
-      {/* サイトの使い方 */}
-      <div className="card p-6">
-        <h2 className="text-base font-bold text-gray-800 mb-5">メンバーサイトの使い方</h2>
-        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
-          {[
-            {
-              icon: "🎬",
-              title: "Voyage Library",
-              desc: "カテゴリ別に動画を視聴できます。視聴済み動画には印がつきます。",
-              href: "/videos",
-            },
-            {
-              icon: "📝",
-              title: "学習ノート",
-              desc: "動画ごとにメモを書き残せます。あとから一覧でまとめて確認できます。",
-              href: "/notes",
-            },
-            {
-              icon: "👥",
-              title: "メンバー",
-              desc: "一緒に学ぶメンバーのプロフィールを確認できます。",
-              href: "/members",
-            },
-            {
-              icon: "👤",
-              title: "マイページ",
-              desc: "プロフィール写真・自己紹介・タグなどを編集できます。",
-              href: "/profile",
-            },
-          ].map((item) => (
-            <Link key={item.title} href={item.href} className="group block rounded-xl bg-gray-50 hover:bg-blue-50 p-4 transition-colors">
-              <div className="text-2xl mb-2">{item.icon}</div>
-              <p className="font-bold text-sm text-gray-900 group-hover:text-blue-700 transition-colors mb-1">{item.title}</p>
-              <p className="text-xs text-gray-500 leading-relaxed">{item.desc}</p>
-            </Link>
-          ))}
-        </div>
-      </div>
     </div>
   );
 }
