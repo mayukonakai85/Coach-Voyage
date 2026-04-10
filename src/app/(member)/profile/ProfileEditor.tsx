@@ -136,24 +136,30 @@ export function ProfileEditor({
 
       {/* アバター＋基本情報 */}
       <div className="rounded-2xl bg-gradient-to-br from-blue-600 to-indigo-700 p-6 mb-6 text-white flex items-center gap-5">
-        {/* アバター（クリックで写真変更） */}
-        <button
-          type="button"
-          onClick={() => fileInputRef.current?.click()}
-          disabled={uploading}
-          className="relative group shrink-0"
-        >
-          <Avatar name={name || profile.name} avatarUrl={avatarUrl} size="xl" />
-          <div className="absolute inset-0 rounded-full bg-black/40 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center">
-            {uploading ? (
-              <span className="text-white text-xs font-bold">...</span>
-            ) : (
+        {/* アバター */}
+        <div className="shrink-0 flex flex-col items-center gap-2">
+          <button
+            type="button"
+            onClick={() => fileInputRef.current?.click()}
+            disabled={uploading}
+            className="relative group"
+          >
+            <Avatar name={name || profile.name} avatarUrl={avatarUrl} size="xl" />
+            <div className="absolute inset-0 rounded-full bg-black/40 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center">
               <svg className="w-6 h-6 text-white" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M3 9a2 2 0 012-2h.93a2 2 0 001.664-.89l.812-1.22A2 2 0 0110.07 4h3.86a2 2 0 011.664.89l.812 1.22A2 2 0 0018.07 7H19a2 2 0 012 2v9a2 2 0 01-2 2H5a2 2 0 01-2-2V9z" />
                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 13a3 3 0 11-6 0 3 3 0 016 0z" />
               </svg>
-            )}
-          </div>
+            </div>
+          </button>
+          <button
+            type="button"
+            onClick={() => fileInputRef.current?.click()}
+            disabled={uploading}
+            className="text-xs text-blue-200 hover:text-white underline underline-offset-2 transition-colors"
+          >
+            {uploading ? "アップロード中…" : "写真を変更"}
+          </button>
           <input
             ref={fileInputRef}
             type="file"
@@ -161,7 +167,7 @@ export function ProfileEditor({
             className="hidden"
             onChange={handleAvatarChange}
           />
-        </button>
+        </div>
         <div>
           <p className="text-2xl font-bold leading-tight">{name || profile.name}</p>
           <p className="text-blue-200 text-sm mt-0.5">{profile.email}</p>
@@ -173,7 +179,6 @@ export function ProfileEditor({
           </div>
         </div>
       </div>
-      <p className="text-xs text-gray-400 -mt-3 mb-3 pl-1">↑ 写真をクリックして変更</p>
 
       {/* アクティビティ */}
       <div className="grid grid-cols-3 gap-4 mb-6">
