@@ -12,6 +12,7 @@ type Member = {
   title: string | null;
   isActive: boolean;
   createdAt: Date;
+  invitedAt: Date | null;
 };
 
 export function MemberRow({ member, currentUserId }: { member: Member; currentUserId: string }) {
@@ -110,7 +111,7 @@ export function MemberRow({ member, currentUserId }: { member: Member; currentUs
       {/* 招待・操作 */}
       <td className="px-5 py-4">
         <div className="flex items-center gap-2 justify-end flex-wrap">
-          <InviteButton memberId={member.id} memberName={member.name} memberEmail={member.email} />
+          <InviteButton memberId={member.id} memberName={member.name} memberEmail={member.email} invitedAt={member.invitedAt} />
           <span className={`text-xs px-2 py-0.5 rounded-full font-medium ${member.isActive ? "bg-green-100 text-green-700" : "bg-gray-100 text-gray-500"}`}>
             {member.isActive ? "利用中" : "停止中"}
           </span>

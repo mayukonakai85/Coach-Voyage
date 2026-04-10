@@ -38,7 +38,11 @@ export function VideoForm({
       : new Date().toISOString().slice(0, 10),
     isPublished: initialData?.isPublished ?? true,
     schedulePublishAt: initialData?.schedulePublishAt
-      ? new Date(initialData.schedulePublishAt).toISOString().slice(0, 16)
+      ? (() => {
+          const d = new Date(initialData.schedulePublishAt as string);
+          const pad = (n: number) => String(n).padStart(2, "0");
+          return `${d.getFullYear()}-${pad(d.getMonth()+1)}-${pad(d.getDate())}T${pad(d.getHours())}`;
+        })()
       : "",
   });
 
@@ -174,14 +178,32 @@ export function VideoForm({
 
         <div>
           <label className="label">予約公開日時（任意）</label>
-          <input
-            type="datetime-local"
-            value={form.schedulePublishAt}
-            onChange={(e) => setForm({ ...form, schedulePublishAt: e.target.value })}
-            className="input"
-          />
+          <div className="flex gap-2 items-center">
+            <input
+              type="date"
+              value={form.schedulePublishAt ? form.schedulePublishAt.split("T")[0] : ""}
+              onChange={(e) => {
+                const hour = form.schedulePublishAt ? form.schedulePublishAt.split("T")[1] ?? "10" : "10";
+                setForm({ ...form, schedulePublishAt: e.target.value ? `${e.target.value}T${hour}` : "" });
+              }}
+              className="input flex-1"
+            />
+            <select
+              value={form.schedulePublishAt ? form.schedulePublishAt.split("T")[1] ?? "" : ""}
+              onChange={(e) => {
+                const date = form.schedulePublishAt ? form.schedulePublishAt.split("T")[0] : "";
+                if (date) setForm({ ...form, schedulePublishAt: `${date}T${e.target.value}` });
+              }}
+              disabled={!form.schedulePublishAt}
+              className="input w-28"
+            >
+              {Array.from({ length: 24 }, (_, i) => String(i).padStart(2, "0")).map(h => (
+                <option key={h} value={h}>{h}:00</option>
+              ))}
+            </select>
+          </div>
           <p className="text-xs text-gray-400 mt-1">
-            設定した日時になると自動で公開されます。空白の場合は即時公開（下の公開チェックに従う）
+            設定した日時になると自動で公開されます。空白の場合は下の公開チェックに従います。
           </p>
         </div>
 

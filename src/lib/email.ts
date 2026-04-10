@@ -1,6 +1,7 @@
 import { Resend } from "resend";
 
-const SITE_URL = process.env.NEXT_PUBLIC_SITE_URL ?? "http://localhost:3000";
+// NEXTAUTH_URL は Vercel 環境では本番URLが設定される
+const SITE_URL = process.env.NEXTAUTH_URL ?? process.env.NEXT_PUBLIC_SITE_URL ?? "http://localhost:3000";
 
 // 会員登録時のウェルカムメール（パスワード設定リンク付き）
 export async function sendWelcomeEmail({

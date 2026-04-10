@@ -48,7 +48,8 @@ export function SeminarForm({ initialData, onCancel }: Props) {
     setError("");
     setSuccess("");
 
-    const scheduledAt = `${form.date}T${form.hour}:${form.minute}:00`;
+    // JST (+09:00) で送ることでサーバー側のタイムゾーンに関係なく正確に保存
+    const scheduledAt = `${form.date}T${form.hour}:${form.minute}:00+09:00`;
 
     try {
       const url = isEdit ? `/api/admin/seminars/${initialData.id}` : "/api/admin/seminars";

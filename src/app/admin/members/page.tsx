@@ -10,6 +10,10 @@ export default async function AdminMembersPage() {
   const members = await prisma.user.findMany({
     where: { role: { in: ["MEMBER", "ADMIN"] } },
     orderBy: { createdAt: "asc" },
+    select: {
+      id: true, name: true, email: true, role: true, title: true,
+      isActive: true, createdAt: true, invitedAt: true,
+    },
   });
 
   return (
@@ -49,7 +53,7 @@ export default async function AdminMembersPage() {
                 </thead>
                 <tbody>
                   {members.map((member) => (
-                    <MemberRow key={member.id} member={member} currentUserId={session?.user?.id ?? ""} />
+                    <MemberRow key={member.id} member={{ ...member, invitedAt: member.invitedAt ?? null }} currentUserId={session?.user?.id ?? ""} />
                   ))}
                 </tbody>
               </table>

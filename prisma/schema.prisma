@@ -27,6 +27,7 @@ model User {
   learningSince        String?   // 学習開始時期
   passwordResetToken   String?
   passwordResetExpires DateTime?
+  invitedAt            DateTime? // 招待メール送付日時
   tags                 UserTag[]
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt

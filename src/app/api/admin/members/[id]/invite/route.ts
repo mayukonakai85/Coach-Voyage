@@ -17,9 +17,8 @@ export async function POST(
   const user = await prisma.user.findUnique({ where: { id: params.id } });
   if (!user) return NextResponse.json({ error: "Not found" }, { status: 404 });
 
-  // 新しいトークンを発行
   const token = randomBytes(32).toString("hex");
-  const expires = new Date(Date.now() + 24 * 60 * 60 * 1000);
+  const expires = new Date(Date.now() + 7 * 24 * 60 * 60 * 1000); // 7日間有効
 
   await prisma.user.update({
     where: { id: params.id },
@@ -30,8 +29,17 @@ export async function POST(
     await sendWelcomeEmail({ to: user.email, name: user.name, token });
   } catch (err) {
     console.error("Invite email error:", err);
-    return NextResponse.json({ error: "メール送信に失敗しました。設定を確認してください。" }, { status: 500 });
+    return NextResponse.json(
+      { error: `メール送信に失敗しました: ${err instanceof Error ? err.message : String(err)}` },
+      { status: 500 }
+    );
   }
+
+  // 招待日時を記録
+  await prisma.user.update({
+    where: { id: params.id },
+    data: { invitedAt: new Date() },
+  });
 
   return NextResponse.json({ success: true });
 }

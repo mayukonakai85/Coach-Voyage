@@ -53,7 +53,7 @@ export async function POST(req: NextRequest) {
         sortOrder: sortOrder ?? 0,
         publishedAt: publishedAt ? new Date(publishedAt) : new Date(),
         isPublished: isPublished ?? true,
-        schedulePublishAt: schedulePublishAt ? new Date(schedulePublishAt) : null,
+        schedulePublishAt: schedulePublishAt ? new Date(schedulePublishAt.length === 13 ? schedulePublishAt + ":00:00+09:00" : schedulePublishAt) : null,
       },
     });
 
