@@ -12,7 +12,7 @@ export default async function AdminMembersPage() {
     orderBy: { createdAt: "asc" },
     select: {
       id: true, name: true, email: true, role: true, title: true,
-      isActive: true, createdAt: true, invitedAt: true,
+      isActive: true, createdAt: true, invitedAt: true, joinedMonth: true,
     },
   });
 
@@ -55,14 +55,14 @@ export default async function AdminMembersPage() {
                     <th className="text-left text-xs font-semibold text-gray-500 uppercase tracking-wider pl-5 pr-3 py-3">名前</th>
                     <th className="text-left text-xs font-semibold text-gray-500 uppercase tracking-wider px-3 py-3 hidden sm:table-cell">役職</th>
                     <th className="text-left text-xs font-semibold text-gray-500 uppercase tracking-wider px-3 py-3 hidden md:table-cell">権限</th>
-                    <th className="text-left text-xs font-semibold text-gray-500 uppercase tracking-wider px-3 py-3 hidden lg:table-cell">登録日</th>
+                    <th className="text-left text-xs font-semibold text-gray-500 uppercase tracking-wider px-3 py-3 hidden lg:table-cell">入会月</th>
                     <th className="text-right text-xs font-semibold text-gray-500 uppercase tracking-wider px-3 py-3">招待</th>
                     <th className="text-right text-xs font-semibold text-gray-500 uppercase tracking-wider pl-3 pr-5 py-3">ステータス</th>
                   </tr>
                 </thead>
                 <tbody>
                   {members.map((member) => (
-                    <MemberRow key={member.id} member={{ ...member, invitedAt: member.invitedAt ?? null }} currentUserId={session?.user?.id ?? ""} />
+                    <MemberRow key={member.id} member={{ ...member, invitedAt: member.invitedAt ?? null, joinedMonth: member.joinedMonth ?? null }} currentUserId={session?.user?.id ?? ""} />
                   ))}
                 </tbody>
               </table>

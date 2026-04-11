@@ -26,6 +26,7 @@ model User {
   loginCount           Int       @default(0)
   learningSince        String?   // 学習開始時期
   contentRequest       String?   // コンテンツリクエスト
+  joinedMonth          String?   // 入会月（YYYY-MM形式）
   passwordResetToken   String?
   passwordResetExpires DateTime?
   invitedAt            DateTime? // 招待メール送付日時

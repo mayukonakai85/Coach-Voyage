@@ -21,7 +21,7 @@ export async function PATCH(
 
   try {
     const body = await req.json();
-    const { isActive, role, title } = body;
+    const { isActive, role, title, joinedMonth } = body;
 
     // 自分自身の管理者権限は剥奪不可
     if (role === "MEMBER" && params.id === session.user.id) {
@@ -32,11 +32,12 @@ export async function PATCH(
     if (typeof isActive === "boolean") updateData.isActive = isActive;
     if (role === "ADMIN" || role === "MEMBER") updateData.role = role;
     if (title !== undefined) updateData.title = title?.trim() || null;
+    if (joinedMonth !== undefined) updateData.joinedMonth = joinedMonth?.trim() || null;
 
     const member = await prisma.user.update({
       where: { id: params.id },
       data: updateData,
-      select: { id: true, email: true, name: true, isActive: true, role: true, title: true },
+      select: { id: true, email: true, name: true, isActive: true, role: true, title: true, joinedMonth: true },
     });
 
     return NextResponse.json(member);

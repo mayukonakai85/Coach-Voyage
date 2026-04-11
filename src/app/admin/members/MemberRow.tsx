@@ -13,6 +13,7 @@ type Member = {
   isActive: boolean;
   createdAt: Date;
   invitedAt: Date | null;
+  joinedMonth: string | null;
 };
 
 export function MemberRow({ member, currentUserId }: { member: Member; currentUserId: string }) {
@@ -21,6 +22,8 @@ export function MemberRow({ member, currentUserId }: { member: Member; currentUs
 
   const [title, setTitle] = useState(member.title ?? "");
   const [editingTitle, setEditingTitle] = useState(false);
+  const [joinedMonth, setJoinedMonth] = useState(member.joinedMonth ?? "");
+  const [editingMonth, setEditingMonth] = useState(false);
   const [saving, setSaving] = useState(false);
 
   async function patch(data: Record<string, unknown>) {
@@ -45,6 +48,17 @@ export function MemberRow({ member, currentUserId }: { member: Member; currentUs
   async function saveTitle() {
     await patch({ title });
     setEditingTitle(false);
+  }
+
+  async function saveJoinedMonth(value: string) {
+    setJoinedMonth(value);
+    await patch({ joinedMonth: value });
+    setEditingMonth(false);
+  }
+
+  function formatMonth(ym: string) {
+    const [y, m] = ym.split("-");
+    return `${y}年${parseInt(m)}月`;
   }
 
   return (
@@ -100,9 +114,29 @@ export function MemberRow({ member, currentUserId }: { member: Member; currentUs
         {isMe && <p className="text-xs text-gray-300 mt-0.5">（自分）</p>}
       </td>
 
-      {/* 登録日 */}
-      <td className="px-3 py-3 text-xs text-gray-400 hidden lg:table-cell whitespace-nowrap">
-        {new Date(member.createdAt).toLocaleDateString("ja-JP")}
+      {/* 入会月 */}
+      <td className="px-3 py-3 hidden lg:table-cell">
+        {editingMonth ? (
+          <input
+            type="month"
+            value={joinedMonth}
+            onChange={(e) => saveJoinedMonth(e.target.value)}
+            onBlur={() => setEditingMonth(false)}
+            className="text-xs border border-gray-300 rounded px-2 py-1 w-full focus:outline-none focus:border-blue-400"
+            autoFocus
+          />
+        ) : (
+          <button
+            onClick={() => setEditingMonth(true)}
+            className="group text-left w-full"
+          >
+            {joinedMonth ? (
+              <span className="text-xs text-gray-700">{formatMonth(joinedMonth)}</span>
+            ) : (
+              <span className="text-xs text-gray-300 group-hover:text-gray-400">+ 入会月を追加</span>
+            )}
+          </button>
+        )}
       </td>
 
       {/* 招待 */}
