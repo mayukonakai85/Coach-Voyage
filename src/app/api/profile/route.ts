@@ -38,11 +38,20 @@ export async function PUT(req: NextRequest) {
     return NextResponse.json({ error: "名前は必須です" }, { status: 400 });
   }
 
+  // コンテンツリクエストが変わったか確認するために現在値を取得
+  const currentUser = await prisma.user.findUnique({
+    where: { id: session.user.id },
+    select: { contentRequest: true, name: true },
+  });
+
+  const newContentRequest = contentRequest?.trim() || null;
+  const contentRequestChanged = contentRequest !== undefined && newContentRequest !== currentUser?.contentRequest;
+
   const updateData: Record<string, unknown> = {
     name: name.trim(),
     bio: bio?.trim() || null,
     learningSince: learningSince?.trim() || null,
-    contentRequest: contentRequest?.trim() || null,
+    contentRequest: newContentRequest,
   };
 
   // メール変更
@@ -79,6 +88,24 @@ export async function PUT(req: NextRequest) {
     if (tagIds.length > 0) {
       await prisma.userTag.createMany({
         data: tagIds.map((tagId: string) => ({ userId: session.user.id, tagId })),
+      });
+    }
+  }
+
+  // コンテンツリクエストが新規送信された場合、管理者全員に通知
+  if (contentRequestChanged && newContentRequest) {
+    const admins = await prisma.user.findMany({
+      where: { role: "ADMIN" },
+      select: { id: true },
+    });
+    if (admins.length > 0) {
+      await prisma.notification.createMany({
+        data: admins.map((admin) => ({
+          userId: admin.id,
+          type: "content_request",
+          message: `${currentUser?.name ?? "メンバー"} さんからコンテンツリクエストが届きました`,
+          link: "/admin/content-requests",
+        })),
       });
     }
   }

@@ -88,7 +88,7 @@ export function NotificationBell() {
                   >
                     <div className="flex items-start gap-2">
                       <span className="text-base mt-0.5">
-                        {n.type === "comment" ? "💬" : n.type === "reply" ? "↩️" : n.type === "new_video" ? "🎬" : n.type === "mention" ? "📣" : "❤️"}
+                        {n.type === "comment" ? "💬" : n.type === "reply" ? "↩️" : n.type === "new_video" ? "🎬" : n.type === "mention" ? "📣" : n.type === "content_request" ? "📩" : "❤️"}
                       </span>
                       <div className="flex-1 min-w-0">
                         <p className="text-xs text-gray-700 leading-relaxed">{n.message}</p>

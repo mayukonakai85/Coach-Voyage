@@ -13,7 +13,6 @@ export default async function ContentRequestsPage() {
   const members = await prisma.user.findMany({
     where: {
       contentRequest: { not: null },
-      role: "MEMBER",
     },
     select: {
       id: true,
