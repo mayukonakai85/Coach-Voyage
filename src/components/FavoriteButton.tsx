@@ -54,7 +54,7 @@ export function FavoriteButton({
           d="M5 5a2 2 0 012-2h10a2 2 0 012 2v16l-7-3.5L5 21V5z"
         />
       </svg>
-      {favorited ? "保存済み" : "保存"}
+      {favorited ? "お気に入り済み" : "お気に入り"}
     </button>
   );
 }

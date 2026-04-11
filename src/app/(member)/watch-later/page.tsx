@@ -4,11 +4,11 @@ import { prisma } from "@/lib/db";
 import { redirect } from "next/navigation";
 import { VideoCard } from "@/components/VideoCard";
 
-export default async function FavoritesPage() {
+export default async function WatchLaterPage() {
   const session = await getServerSession(authOptions);
   if (!session) redirect("/login");
 
-  const favorites = await prisma.favorite.findMany({
+  const list = await prisma.watchLater.findMany({
     where: { userId: session.user.id },
     orderBy: { createdAt: "desc" },
     include: {
@@ -21,7 +21,6 @@ export default async function FavoritesPage() {
     },
   });
 
-  // 視聴済みチェック
   const viewedIds = new Set(
     (await prisma.videoView.findMany({
       where: { userId: session.user.id },
@@ -32,29 +31,27 @@ export default async function FavoritesPage() {
   return (
     <div className="space-y-6">
       <div>
-        <p className="text-sm text-blue-600 font-semibold uppercase tracking-widest mb-1">Member Portal</p>
-        <h1 className="text-2xl font-bold text-gray-900">お気に入り</h1>
-        <p className="text-sm text-gray-500 mt-1">{favorites.length}本の動画</p>
+        <p className="text-sm text-purple-600 font-semibold uppercase tracking-widest mb-1">Member Portal</p>
+        <h1 className="text-2xl font-bold text-gray-900">後で見る</h1>
+        <p className="text-sm text-gray-500 mt-1">{list.length}本の動画</p>
       </div>
 
-      {favorites.length === 0 ? (
+      {list.length === 0 ? (
         <div className="card p-12 text-center text-gray-400">
           <svg className="w-12 h-12 mx-auto mb-4 text-gray-300" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M5 5a2 2 0 012-2h10a2 2 0 012 2v16l-7-3.5L5 21V5z" />
+            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" />
           </svg>
-          <p className="font-medium">お気に入りはまだありません</p>
-          <p className="text-sm mt-1">動画ページの「お気に入り」ボタンで追加できます</p>
+          <p className="font-medium">リストはまだありません</p>
+          <p className="text-sm mt-1">動画ページの「後で見る」ボタンで追加できます</p>
         </div>
       ) : (
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
-          {favorites.map(({ video }) => (
+          {list.map(({ video }) => (
             <VideoCard
               key={video.id}
               video={{
                 ...video,
                 description: video.description ?? "",
-                publishedAt: video.publishedAt,
-                recordedAt: video.recordedAt,
                 isViewed: viewedIds.has(video.id),
               }}
             />

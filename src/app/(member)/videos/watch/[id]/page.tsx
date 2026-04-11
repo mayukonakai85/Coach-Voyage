@@ -10,6 +10,7 @@ import { LearningNote } from "@/components/LearningNote";
 import { VideoComments } from "@/components/VideoComments";
 import { VideoLikeButton } from "@/components/VideoLikeButton";
 import { FavoriteButton } from "@/components/FavoriteButton";
+import { WatchLaterButton } from "@/components/WatchLaterButton";
 
 export default async function VideoDetailPage({
   params,
@@ -18,7 +19,7 @@ export default async function VideoDetailPage({
 }) {
   const session = await getServerSession(authOptions);
 
-  const [video, note, videoLike, videoFavorite] = await Promise.all([
+  const [video, note, videoLike, videoFavorite, videoWatchLater] = await Promise.all([
     prisma.video.findFirst({ where: { id: params.id, isPublished: true } }),
     session
       ? prisma.note.findUnique({
@@ -32,6 +33,11 @@ export default async function VideoDetailPage({
       : null,
     session
       ? prisma.favorite.findUnique({
+          where: { userId_videoId: { userId: session.user.id, videoId: params.id } },
+        })
+      : null,
+    session
+      ? prisma.watchLater.findUnique({
           where: { userId_videoId: { userId: session.user.id, videoId: params.id } },
         })
       : null,
@@ -93,7 +99,8 @@ export default async function VideoDetailPage({
             )}
             <span className="text-xs text-gray-400">アップ日：{uploadedDate}</span>
             {session && (
-              <div className="flex items-center gap-2 shrink-0">
+              <div className="flex items-center gap-2 shrink-0 flex-wrap">
+                <WatchLaterButton videoId={video.id} initialAdded={!!videoWatchLater} />
                 <FavoriteButton videoId={video.id} initialFavorited={!!videoFavorite} />
                 <VideoLikeButton videoId={video.id} initialLiked={!!videoLike} initialCount={likeCount} />
               </div>
