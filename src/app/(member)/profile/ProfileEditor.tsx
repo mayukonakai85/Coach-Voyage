@@ -18,6 +18,43 @@ type Profile = {
   _count: { views: number; notes: number; comments: number };
 };
 
+function Section({
+  title,
+  description,
+  children,
+}: {
+  title: string;
+  description: string;
+  children: React.ReactNode;
+}) {
+  const [open, setOpen] = useState(false);
+  return (
+    <div className="rounded-2xl border border-gray-100 bg-white shadow-sm overflow-hidden">
+      <button
+        type="button"
+        onClick={() => setOpen(v => !v)}
+        className="w-full flex items-center justify-between px-6 py-4 text-left hover:bg-gray-50 transition-colors"
+      >
+        <div>
+          <p className="font-bold text-gray-800 text-sm">{title}</p>
+          {!open && <p className="text-xs text-gray-400 mt-0.5">{description}</p>}
+        </div>
+        <svg
+          className={`w-4 h-4 text-gray-400 shrink-0 transition-transform ml-4 ${open ? "rotate-180" : ""}`}
+          fill="none" viewBox="0 0 24 24" stroke="currentColor"
+        >
+          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2.5} d="M19 9l-7 7-7-7" />
+        </svg>
+      </button>
+      {open && (
+        <div className="px-6 pb-6 pt-2 border-t border-gray-50">
+          {children}
+        </div>
+      )}
+    </div>
+  );
+}
+
 export function ProfileEditor({
   profile,
   allTags,
@@ -39,7 +76,6 @@ export function ProfileEditor({
   const [saved, setSaved] = useState(false);
   const [error, setError] = useState("");
 
-  // パスワード変更
   const [currentPassword, setCurrentPassword] = useState("");
   const [newPassword, setNewPassword] = useState("");
   const [confirmPassword, setConfirmPassword] = useState("");
@@ -105,7 +141,6 @@ export function ProfileEditor({
     setUploading(true);
     setError("");
     try {
-      // Canvas でリサイズ（最大 300x300）してからアップロード
       const resizedBlob = await resizeImage(file, 150);
       const form = new FormData();
       form.append("file", resizedBlob, "avatar.jpg");
@@ -159,17 +194,17 @@ export function ProfileEditor({
     year: "numeric", month: "long", day: "numeric",
   });
 
+  const currentYear = new Date().getFullYear();
+
   return (
     <div className="max-w-2xl mx-auto">
       {/* ページヘッダー */}
       <div className="mb-8">
-        <p className="text-sm text-blue-600 font-semibold uppercase tracking-widest mb-1">Member Portal</p>
-        <h1 className="text-2xl font-bold text-gray-900">マイプロフィール</h1>
+        <h1 className="text-2xl font-bold text-gray-900">マイページ</h1>
       </div>
 
       {/* アバター＋基本情報 */}
       <div className="rounded-2xl bg-gradient-to-br from-blue-600 to-indigo-700 p-6 mb-6 text-white flex items-center gap-5">
-        {/* アバター */}
         <div className="shrink-0 flex flex-col items-center gap-2">
           <button
             type="button"
@@ -227,152 +262,153 @@ export function ProfileEditor({
         ))}
       </div>
 
-      {/* プロフィール編集 */}
-      <div className="rounded-2xl border border-gray-100 bg-white p-6 shadow-sm">
-        <h2 className="font-bold text-gray-800 mb-5">プロフィールを編集</h2>
-        <div className="space-y-4">
-          <div>
-            <label className="block text-sm font-medium text-gray-700 mb-1.5">名前</label>
-            <input
-              type="text"
-              value={name}
-              onChange={(e) => setName(e.target.value)}
-              className="w-full rounded-xl border border-gray-200 px-3.5 py-2.5 text-sm text-gray-800 focus:border-blue-400 focus:outline-none focus:ring-1 focus:ring-blue-300"
-            />
-          </div>
-          <div>
-            <label className="block text-sm font-medium text-gray-700 mb-1.5">メールアドレス</label>
-            <input
-              type="email"
-              value={email}
-              onChange={(e) => setEmail(e.target.value)}
-              className="w-full rounded-xl border border-gray-200 px-3.5 py-2.5 text-sm text-gray-800 focus:border-blue-400 focus:outline-none focus:ring-1 focus:ring-blue-300"
-            />
-          </div>
-          <div>
-            <label className="block text-sm font-medium text-gray-700 mb-1.5">
-              自己紹介<span className="text-gray-400 font-normal ml-2">（任意）</span>
-            </label>
-            <textarea
-              value={bio}
-              onChange={(e) => setBio(e.target.value)}
-              rows={4}
-              className="w-full rounded-xl border border-gray-200 px-3.5 py-2.5 text-sm text-gray-800 placeholder-gray-300 focus:border-blue-400 focus:outline-none focus:ring-1 focus:ring-blue-300 resize-none"
-              placeholder="コーチングとの出会いや、大切にしていることなど"
-            />
-          </div>
-          <div>
-            <label className="block text-sm font-medium text-gray-700 mb-1.5">
-              コーチング学習開始時期<span className="text-gray-400 font-normal ml-2">（任意）</span>
-            </label>
-            <select
-              value={learningSince}
-              onChange={(e) => setLearningSince(e.target.value)}
-              className="w-full rounded-xl border border-gray-200 px-3.5 py-2.5 text-sm text-gray-800 focus:border-blue-400 focus:outline-none focus:ring-1 focus:ring-blue-300 bg-white"
-            >
-              <option value="">選択してください</option>
-              {Array.from({ length: new Date().getFullYear() - 2009 }, (_, i) => new Date().getFullYear() - i).map(y => (
-                <option key={y} value={String(y)}>{y}年</option>
-              ))}
-            </select>
-          </div>
-          {allTags.length > 0 && (
+      {/* 折りたたみセクション */}
+      <div className="space-y-3">
+        {/* プロフィール編集 */}
+        <Section title="プロフィールを編集" description="名前・メールアドレス・自己紹介・興味関心タグなどを変更できます">
+          <div className="space-y-4 mt-2">
             <div>
-              <label className="block text-sm font-medium text-gray-700 mb-2">
-                興味関心タグ<span className="text-gray-400 font-normal ml-2">（複数選択可）</span>
-              </label>
-              <div className="flex flex-wrap gap-2">
-                {allTags.map(tag => (
-                  <button
-                    key={tag.id}
-                    type="button"
-                    onClick={() => toggleTag(tag.id)}
-                    className={`text-xs px-3 py-1.5 rounded-full border font-medium transition-colors ${
-                      selectedTags.includes(tag.id)
-                        ? "bg-blue-600 border-blue-600 text-white"
-                        : "border-gray-200 text-gray-600 hover:border-blue-300 hover:text-blue-600"
-                    }`}
-                  >
-                    {tag.name}
-                  </button>
-                ))}
-              </div>
-              <p className="text-xs text-gray-400 mt-2">
-                興味・関心を登録するとセミナー内容やコンテンツ制作に活かされます
-              </p>
+              <label className="block text-sm font-medium text-gray-700 mb-1.5">名前</label>
+              <input
+                type="text"
+                value={name}
+                onChange={(e) => setName(e.target.value)}
+                className="w-full rounded-xl border border-gray-200 px-3.5 py-2.5 text-sm text-gray-800 focus:border-blue-400 focus:outline-none focus:ring-1 focus:ring-blue-300"
+              />
             </div>
-          )}
-          {error && <p className="text-sm text-red-500">{error}</p>}
-          <button
-            onClick={handleSave}
-            disabled={saving || !name.trim()}
-            className="w-full bg-blue-600 hover:bg-blue-700 disabled:opacity-40 text-white font-bold py-2.5 rounded-xl transition-colors text-sm"
-          >
-            {saving ? "保存中…" : saved ? "保存しました ✓" : "保存する"}
-          </button>
-        </div>
-      </div>
+            <div>
+              <label className="block text-sm font-medium text-gray-700 mb-1.5">メールアドレス</label>
+              <input
+                type="email"
+                value={email}
+                onChange={(e) => setEmail(e.target.value)}
+                className="w-full rounded-xl border border-gray-200 px-3.5 py-2.5 text-sm text-gray-800 focus:border-blue-400 focus:outline-none focus:ring-1 focus:ring-blue-300"
+              />
+            </div>
+            <div>
+              <label className="block text-sm font-medium text-gray-700 mb-1.5">
+                自己紹介<span className="text-gray-400 font-normal ml-2">（任意）</span>
+              </label>
+              <textarea
+                value={bio}
+                onChange={(e) => setBio(e.target.value)}
+                rows={4}
+                className="w-full rounded-xl border border-gray-200 px-3.5 py-2.5 text-sm text-gray-800 placeholder-gray-300 focus:border-blue-400 focus:outline-none focus:ring-1 focus:ring-blue-300 resize-none"
+                placeholder="コーチングとの出会いや、大切にしていることなど"
+              />
+            </div>
+            <div>
+              <label className="block text-sm font-medium text-gray-700 mb-1.5">
+                コーチング学習開始時期<span className="text-gray-400 font-normal ml-2">（任意）</span>
+              </label>
+              <select
+                value={learningSince}
+                onChange={(e) => setLearningSince(e.target.value)}
+                className="w-full rounded-xl border border-gray-200 px-3.5 py-2.5 text-sm text-gray-800 focus:border-blue-400 focus:outline-none focus:ring-1 focus:ring-blue-300 bg-white"
+              >
+                <option value="">選択してください</option>
+                {Array.from({ length: currentYear - 2010 }, (_, i) => currentYear - i).map(y => (
+                  <option key={y} value={String(y)}>{y}年</option>
+                ))}
+                <option value="2010">2010年以前</option>
+              </select>
+            </div>
+            {allTags.length > 0 && (
+              <div>
+                <label className="block text-sm font-medium text-gray-700 mb-2">
+                  興味関心タグ
+                  <span className="text-gray-400 font-normal ml-2">（複数選択可）</span>
+                  <span className="text-xs text-gray-400 font-normal ml-2">興味・関心を登録すると、今後のセミナー内容やコンテンツ制作に活かされます</span>
+                </label>
+                <div className="flex flex-wrap gap-2">
+                  {allTags.map(tag => (
+                    <button
+                      key={tag.id}
+                      type="button"
+                      onClick={() => toggleTag(tag.id)}
+                      className={`text-xs px-3 py-1.5 rounded-full border font-medium transition-colors ${
+                        selectedTags.includes(tag.id)
+                          ? "bg-blue-600 border-blue-600 text-white"
+                          : "border-gray-200 text-gray-600 hover:border-blue-300 hover:text-blue-600"
+                      }`}
+                    >
+                      {tag.name}
+                    </button>
+                  ))}
+                </div>
+              </div>
+            )}
+            {error && <p className="text-sm text-red-500">{error}</p>}
+            <button
+              onClick={handleSave}
+              disabled={saving || !name.trim()}
+              className="w-full bg-blue-600 hover:bg-blue-700 disabled:opacity-40 text-white font-bold py-2.5 rounded-xl transition-colors text-sm"
+            >
+              {saving ? "保存中…" : saved ? "保存しました ✓" : "保存する"}
+            </button>
+          </div>
+        </Section>
 
-      {/* コンテンツリクエスト */}
-      <div className="rounded-2xl border border-blue-100 bg-blue-50 p-6 shadow-sm mt-4">
-        <h2 className="font-bold text-gray-800 mb-1">コンテンツリクエスト</h2>
-        <p className="text-xs text-gray-500 mb-4">見たいセミナーのテーマやショート動画のネタをリクエストできます。いただいたリクエストはコンテンツ制作に活かします。</p>
-        <textarea
-          value={contentRequest}
-          onChange={(e) => setContentRequest(e.target.value)}
-          rows={4}
-          className="w-full rounded-xl border border-blue-200 bg-white px-3.5 py-2.5 text-sm text-gray-800 placeholder-gray-300 focus:border-blue-400 focus:outline-none focus:ring-1 focus:ring-blue-300 resize-none"
-          placeholder="例：コーチングスキルを仕事に活かす方法、傾聴の実践練習など"
-        />
-        <button
-          onClick={handleSave}
-          disabled={saving || !name.trim()}
-          className="mt-3 w-full bg-blue-600 hover:bg-blue-700 disabled:opacity-40 text-white font-bold py-2.5 rounded-xl transition-colors text-sm"
-        >
-          {saving ? "保存中…" : saved ? "保存しました ✓" : "リクエストを送る"}
-        </button>
-      </div>
+        {/* コンテンツリクエスト */}
+        <Section title="コンテンツリクエスト" description="見たいセミナーのテーマやショート動画のネタをリクエストできます">
+          <div className="mt-2 space-y-3">
+            <textarea
+              value={contentRequest}
+              onChange={(e) => setContentRequest(e.target.value)}
+              rows={4}
+              className="w-full rounded-xl border border-gray-200 bg-white px-3.5 py-2.5 text-sm text-gray-800 placeholder-gray-300 focus:border-blue-400 focus:outline-none focus:ring-1 focus:ring-blue-300 resize-none"
+              placeholder="例：コーチングスキルを仕事に活かす方法、傾聴の実践練習など"
+            />
+            <button
+              onClick={handleSave}
+              disabled={saving || !name.trim()}
+              className="w-full bg-blue-600 hover:bg-blue-700 disabled:opacity-40 text-white font-bold py-2.5 rounded-xl transition-colors text-sm"
+            >
+              {saving ? "保存中…" : saved ? "保存しました ✓" : "リクエストを送る"}
+            </button>
+          </div>
+        </Section>
 
-      {/* パスワード変更 */}
-      <div className="rounded-2xl border border-gray-100 bg-white p-6 shadow-sm mt-4">
-        <h2 className="font-bold text-gray-800 mb-5">パスワードを変更</h2>
-        <div className="space-y-4">
-          <div>
-            <label className="block text-sm font-medium text-gray-700 mb-1.5">現在のパスワード</label>
-            <input
-              type="password"
-              value={currentPassword}
-              onChange={(e) => setCurrentPassword(e.target.value)}
-              className="w-full rounded-xl border border-gray-200 px-3.5 py-2.5 text-sm text-gray-800 focus:border-blue-400 focus:outline-none focus:ring-1 focus:ring-blue-300"
-            />
+        {/* パスワード変更 */}
+        <Section title="パスワードを変更" description="現在のパスワードを確認してから新しいパスワードに変更できます">
+          <div className="mt-2 space-y-4">
+            <div>
+              <label className="block text-sm font-medium text-gray-700 mb-1.5">現在のパスワード</label>
+              <input
+                type="password"
+                value={currentPassword}
+                onChange={(e) => setCurrentPassword(e.target.value)}
+                className="w-full rounded-xl border border-gray-200 px-3.5 py-2.5 text-sm text-gray-800 focus:border-blue-400 focus:outline-none focus:ring-1 focus:ring-blue-300"
+              />
+            </div>
+            <div>
+              <label className="block text-sm font-medium text-gray-700 mb-1.5">新しいパスワード（8文字以上）</label>
+              <input
+                type="password"
+                value={newPassword}
+                onChange={(e) => setNewPassword(e.target.value)}
+                className="w-full rounded-xl border border-gray-200 px-3.5 py-2.5 text-sm text-gray-800 focus:border-blue-400 focus:outline-none focus:ring-1 focus:ring-blue-300"
+              />
+            </div>
+            <div>
+              <label className="block text-sm font-medium text-gray-700 mb-1.5">新しいパスワード（確認）</label>
+              <input
+                type="password"
+                value={confirmPassword}
+                onChange={(e) => setConfirmPassword(e.target.value)}
+                className="w-full rounded-xl border border-gray-200 px-3.5 py-2.5 text-sm text-gray-800 focus:border-blue-400 focus:outline-none focus:ring-1 focus:ring-blue-300"
+              />
+            </div>
+            {pwError && <p className="text-sm text-red-500">{pwError}</p>}
+            <button
+              onClick={handlePasswordSave}
+              disabled={pwSaving || !currentPassword || !newPassword || !confirmPassword}
+              className="w-full bg-gray-700 hover:bg-gray-800 disabled:opacity-40 text-white font-bold py-2.5 rounded-xl transition-colors text-sm"
+            >
+              {pwSaving ? "変更中…" : pwSaved ? "変更しました ✓" : "パスワードを変更する"}
+            </button>
           </div>
-          <div>
-            <label className="block text-sm font-medium text-gray-700 mb-1.5">新しいパスワード（8文字以上）</label>
-            <input
-              type="password"
-              value={newPassword}
-              onChange={(e) => setNewPassword(e.target.value)}
-              className="w-full rounded-xl border border-gray-200 px-3.5 py-2.5 text-sm text-gray-800 focus:border-blue-400 focus:outline-none focus:ring-1 focus:ring-blue-300"
-            />
-          </div>
-          <div>
-            <label className="block text-sm font-medium text-gray-700 mb-1.5">新しいパスワード（確認）</label>
-            <input
-              type="password"
-              value={confirmPassword}
-              onChange={(e) => setConfirmPassword(e.target.value)}
-              className="w-full rounded-xl border border-gray-200 px-3.5 py-2.5 text-sm text-gray-800 focus:border-blue-400 focus:outline-none focus:ring-1 focus:ring-blue-300"
-            />
-          </div>
-          {pwError && <p className="text-sm text-red-500">{pwError}</p>}
-          <button
-            onClick={handlePasswordSave}
-            disabled={pwSaving || !currentPassword || !newPassword || !confirmPassword}
-            className="w-full bg-gray-700 hover:bg-gray-800 disabled:opacity-40 text-white font-bold py-2.5 rounded-xl transition-colors text-sm"
-          >
-            {pwSaving ? "変更中…" : pwSaved ? "変更しました ✓" : "パスワードを変更する"}
-          </button>
-        </div>
+        </Section>
       </div>
     </div>
   );
