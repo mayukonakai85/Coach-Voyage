@@ -12,18 +12,22 @@ export default async function HomePage() {
 
   const now = new Date();
 
-  // isNext のセミナーが過去になっていたら自動で次のセミナーに切り替える
-  const currentNext = await prisma.seminar.findFirst({ where: { isNext: true } });
-  if (currentNext && currentNext.scheduledAt < now) {
-    const nextUpcoming = await prisma.seminar.findFirst({
-      where: { scheduledAt: { gte: now } },
-      orderBy: { scheduledAt: "asc" },
-    });
-    await prisma.seminar.updateMany({ data: { isNext: false } });
-    if (nextUpcoming) {
-      await prisma.seminar.update({ where: { id: nextUpcoming.id }, data: { isNext: true } });
+  // isNext のセミナーが過去になっていたら自動で次のセミナーに切り替える（非同期・非ブロッキング）
+  void (async () => {
+    const currentNext = await prisma.seminar.findFirst({ where: { isNext: true } });
+    if (currentNext && currentNext.scheduledAt < now) {
+      const nextUpcoming = await prisma.seminar.findFirst({
+        where: { scheduledAt: { gte: now } },
+        orderBy: { scheduledAt: "asc" },
+      });
+      await prisma.seminar.updateMany({ data: { isNext: false } });
+      if (nextUpcoming) {
+        await prisma.seminar.update({ where: { id: nextUpcoming.id }, data: { isNext: true } });
+      }
     }
-  }
+  })();
+
+  const showPopup = session?.user?.loginCount === 1 || session?.user?.loginCount === 3;
 
   const [nextSeminar, seminars, userProfile] = await Promise.all([
     prisma.seminar.findFirst({
@@ -50,7 +54,7 @@ export default async function HomePage() {
         },
       },
     }),
-    session ? prisma.user.findUnique({
+    session && showPopup ? prisma.user.findUnique({
       where: { id: session.user.id },
       select: { avatarUrl: true, bio: true },
     }) : null,
@@ -59,7 +63,7 @@ export default async function HomePage() {
   return (
     <div className="space-y-8">
       {/* ウェルカムポップアップ */}
-      {session && (
+      {session && showPopup && (
         <WelcomePopup
           loginCount={session.user.loginCount ?? 1}
           userName={session.user.name ?? ""}

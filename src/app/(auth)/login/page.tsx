@@ -17,6 +17,7 @@ function LoginForm() {
 
   async function handleSubmit(e: React.FormEvent) {
     e.preventDefault();
+    if (isLoading) return;
     setIsLoading(true);
     setError("");
 
@@ -26,15 +27,13 @@ function LoginForm() {
       redirect: false,
     });
 
-    setIsLoading(false);
-
     if (result?.error) {
       setError("メールアドレスまたはパスワードが正しくありません。");
+      setIsLoading(false);
       return;
     }
 
     router.push(callbackUrl);
-    router.refresh();
   }
 
   return (
