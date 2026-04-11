@@ -21,6 +21,9 @@ export async function POST(req: NextRequest) {
     return NextResponse.json({ error: "email is required" }, { status: 400 });
   }
 
+  const now = new Date();
+  const joinedMonth = `${now.getFullYear()}-${String(now.getMonth() + 1).padStart(2, "0")}`;
+
   const formData = {
     name: body.name?.trim() || undefined,
     nameRoman: body.nameRoman?.trim() || undefined,
@@ -34,7 +37,8 @@ export async function POST(req: NextRequest) {
     coachingSchool: body.coachingSchool?.trim() || undefined,
     coachingHours: body.coachingHours?.trim() || undefined,
     coachingCertifications: body.coachingCertifications?.trim() || undefined,
-    formSubmittedAt: new Date(),
+    formSubmittedAt: now,
+    joinedMonth,
   };
 
   // メールアドレスでユーザーを検索して更新、存在しなければ仮登録
@@ -54,6 +58,7 @@ export async function POST(req: NextRequest) {
         name: formData.name ?? email,
         password: "", // 招待メール経由でパスワード設定させる
         isActive: false,
+        memberStatus: "PENDING",
         ...formData,
       },
     });

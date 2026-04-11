@@ -40,6 +40,11 @@ export async function POST(req: NextRequest) {
     const email = row.email?.trim().toLowerCase();
     if (!email) { skipped++; continue; }
 
+    const submittedAt = row.formSubmittedAt ? new Date(row.formSubmittedAt) : new Date();
+    const joinedMonth = submittedAt
+      ? `${submittedAt.getFullYear()}-${String(submittedAt.getMonth() + 1).padStart(2, "0")}`
+      : undefined;
+
     const data = {
       name: row.name?.trim() || undefined,
       nameRoman: row.nameRoman?.trim() || undefined,
@@ -53,7 +58,8 @@ export async function POST(req: NextRequest) {
       coachingSchool: row.coachingSchool?.trim() || undefined,
       coachingHours: row.coachingHours?.trim() || undefined,
       coachingCertifications: row.coachingCertifications?.trim() || undefined,
-      formSubmittedAt: row.formSubmittedAt ? new Date(row.formSubmittedAt) : new Date(),
+      formSubmittedAt: submittedAt,
+      joinedMonth,
     };
 
     try {
@@ -68,6 +74,7 @@ export async function POST(req: NextRequest) {
             name: data.name ?? email,
             password: "",
             isActive: false,
+            memberStatus: "PENDING",
             ...data,
           },
         });

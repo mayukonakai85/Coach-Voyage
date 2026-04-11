@@ -12,6 +12,7 @@ type Member = {
   role: string;
   title: string | null;
   isActive: boolean;
+  memberStatus: string;
   createdAt: Date;
   invitedAt: Date | null;
   joinedMonth: string | null;
@@ -153,17 +154,20 @@ export function MemberRow({ member, currentUserId }: { member: Member; currentUs
       <td className="pl-3 pr-5 py-3">
         <div className="flex justify-end">
           <select
-            value={member.isActive ? "active" : "inactive"}
+            value={member.memberStatus}
             disabled={isMe || saving}
-            onChange={(e) => patch({ isActive: e.target.value === "active" })}
+            onChange={(e) => patch({ memberStatus: e.target.value })}
             className={`text-xs border rounded-lg px-2 py-1.5 font-semibold focus:outline-none transition-colors disabled:opacity-50 cursor-pointer w-full ${
-              member.isActive
+              member.memberStatus === "ACTIVE"
                 ? "border-blue-200 bg-blue-50 text-blue-700"
+                : member.memberStatus === "PENDING"
+                ? "border-green-200 bg-green-50 text-green-700"
                 : "border-gray-200 bg-gray-100 text-gray-500"
             }`}
           >
-            <option value="active">会員</option>
-            <option value="inactive">退会済</option>
+            <option value="PENDING">新規</option>
+            <option value="ACTIVE">会員</option>
+            <option value="INACTIVE">退会済</option>
           </select>
         </div>
       </td>

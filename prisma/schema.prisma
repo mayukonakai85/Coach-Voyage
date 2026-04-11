@@ -27,6 +27,7 @@ model User {
   learningSince        String?   // 学習開始時期
   contentRequest       String?   // コンテンツリクエスト
   joinedMonth          String?   // 入会月（YYYY-MM形式）
+  memberStatus         String    @default("ACTIVE") // "ACTIVE" | "INACTIVE" | "PENDING"
   showProfilePopup     Boolean   @default(false) // 管理者が次回ログイン時にポップアップ表示を指示
   // Googleフォーム取り込みフィールド（管理者のみ閲覧）
   nameRoman              String?   // お名前（ローマ字）

@@ -21,7 +21,7 @@ export async function PATCH(
 
   try {
     const body = await req.json();
-    const { isActive, role, title, joinedMonth } = body;
+    const { isActive, memberStatus, role, title, joinedMonth } = body;
 
     // 自分自身の管理者権限は剥奪不可
     if (role === "MEMBER" && params.id === session.user.id) {
@@ -30,6 +30,11 @@ export async function PATCH(
 
     const updateData: Record<string, unknown> = {};
     if (typeof isActive === "boolean") updateData.isActive = isActive;
+    // memberStatus変更時はisActiveも連動
+    if (memberStatus === "ACTIVE" || memberStatus === "INACTIVE" || memberStatus === "PENDING") {
+      updateData.memberStatus = memberStatus;
+      updateData.isActive = memberStatus === "ACTIVE";
+    }
     if (role === "ADMIN" || role === "MEMBER") updateData.role = role;
     if (title !== undefined) updateData.title = title?.trim() || null;
     if (joinedMonth !== undefined) updateData.joinedMonth = joinedMonth?.trim() || null;

@@ -13,7 +13,7 @@ export default async function AdminMembersPage() {
     orderBy: { createdAt: "asc" },
     select: {
       id: true, name: true, email: true, role: true, title: true,
-      isActive: true, createdAt: true, invitedAt: true, joinedMonth: true,
+      isActive: true, memberStatus: true, createdAt: true, invitedAt: true, joinedMonth: true,
     },
   });
 
@@ -74,7 +74,7 @@ export default async function AdminMembersPage() {
                 </thead>
                 <tbody>
                   {members.map((member) => (
-                    <MemberRow key={member.id} member={{ ...member, invitedAt: member.invitedAt ?? null, joinedMonth: member.joinedMonth ?? null }} currentUserId={session?.user?.id ?? ""} />
+                    <MemberRow key={member.id} member={{ ...member, invitedAt: member.invitedAt ?? null, joinedMonth: member.joinedMonth ?? null, memberStatus: member.memberStatus }} currentUserId={session?.user?.id ?? ""} />
                   ))}
                 </tbody>
               </table>
