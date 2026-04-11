@@ -16,7 +16,11 @@ export default async function AdminMembersPage() {
       id: true, name: true, email: true, role: true, title: true,
       isActive: true, memberStatus: true, createdAt: true, invitedAt: true, joinedMonth: true, lastLoginAt: true,
     },
-  })).sort((a, b) => (statusOrder[a.memberStatus] ?? 1) - (statusOrder[b.memberStatus] ?? 1));
+  })).sort((a, b) => {
+    if (a.role === "ADMIN" && b.role !== "ADMIN") return -1;
+    if (a.role !== "ADMIN" && b.role === "ADMIN") return 1;
+    return (statusOrder[a.memberStatus] ?? 1) - (statusOrder[b.memberStatus] ?? 1);
+  });
 
   return (
     <div>
