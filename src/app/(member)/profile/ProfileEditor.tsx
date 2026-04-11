@@ -350,7 +350,7 @@ export function ProfileEditor({
         </Section>
 
         {/* コンテンツリクエスト */}
-        <Section title="コンテンツリクエスト" description="見たいセミナーのテーマやショート動画のネタをリクエストできます">
+        <Section title="コンテンツリクエスト" description="セミナーやショート動画で扱ってほしいテーマをリクエストできます">
           <div className="mt-2 space-y-3">
             <textarea
               value={contentRequest}

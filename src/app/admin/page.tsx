@@ -99,6 +99,9 @@ export default async function AdminDashboard() {
         <p className="text-gray-500 mt-1 text-sm">Coach Voyage 管理パネル</p>
       </div>
 
+      {/* 管理ガイド（折りたたみ） */}
+      <AdminGuide />
+
       {/* クイックアクション */}
       <div className="bg-white rounded-xl border border-gray-200 p-5">
         <h2 className="font-bold text-gray-800 text-sm mb-4">クイックアクション</h2>
@@ -107,7 +110,7 @@ export default async function AdminDashboard() {
             { href: "/admin/members", label: "会員を招待", icon: "👤" },
             { href: "/admin/seminars", label: "イベントを追加", icon: "📅" },
             { href: "/admin/analytics", label: "視聴データを確認", icon: "📊" },
-            { href: "/admin/tags", label: "タグを管理", icon: "🏷️" },
+            { href: "/admin/content-requests", label: "リクエストを確認", icon: "💬" },
           ].map((item) => (
             <Link
               key={item.href}
@@ -120,9 +123,6 @@ export default async function AdminDashboard() {
           ))}
         </div>
       </div>
-
-      {/* 管理ガイド（折りたたみ） */}
-      <AdminGuide />
 
       {/* 統計カード */}
       <div className="grid grid-cols-2 xl:grid-cols-4 gap-4">
