@@ -50,48 +50,45 @@ export function MemberRow({ member, currentUserId }: { member: Member; currentUs
   return (
     <tr className="hover:bg-gray-50 border-b border-gray-100 last:border-0">
       {/* 名前・メール */}
-      <td className="px-5 py-4">
-        <p className="font-medium text-gray-900 text-sm">{member.name}</p>
-        <p className="text-xs text-gray-400">{member.email}</p>
+      <td className="pl-5 pr-3 py-3">
+        <p className="font-medium text-gray-900 text-sm truncate">{member.name}</p>
+        <p className="text-xs text-gray-400 truncate">{member.email}</p>
       </td>
 
       {/* 役職 */}
-      <td className="px-5 py-4 hidden sm:table-cell">
+      <td className="px-3 py-3 hidden sm:table-cell">
         {editingTitle ? (
-          <div className="flex items-center gap-1.5">
+          <div className="flex items-center gap-1">
             <input
               type="text"
               value={title}
               onChange={(e) => setTitle(e.target.value)}
               onKeyDown={(e) => { if (e.key === "Enter") saveTitle(); if (e.key === "Escape") setEditingTitle(false); }}
-              className="text-xs border border-gray-300 rounded px-2 py-1 w-32 focus:outline-none focus:border-blue-400"
+              className="text-xs border border-gray-300 rounded px-2 py-1 w-full focus:outline-none focus:border-blue-400"
               placeholder="役職名"
               autoFocus
             />
-            <button onClick={saveTitle} disabled={saving} className="text-xs text-blue-600 hover:text-blue-800 font-medium">保存</button>
-            <button onClick={() => setEditingTitle(false)} className="text-xs text-gray-400 hover:text-gray-600">×</button>
+            <button onClick={saveTitle} disabled={saving} className="text-xs text-blue-600 hover:text-blue-800 font-medium shrink-0">保存</button>
+            <button onClick={() => setEditingTitle(false)} className="text-xs text-gray-400 hover:text-gray-600 shrink-0">×</button>
           </div>
         ) : (
-          <button
-            onClick={() => setEditingTitle(true)}
-            className="group flex items-center gap-1 text-left"
-          >
+          <button onClick={() => setEditingTitle(true)} className="group text-left w-full">
             {member.title ? (
-              <span className="text-xs font-medium text-indigo-700 bg-indigo-50 px-2 py-0.5 rounded-full">{member.title}</span>
+              <span className="text-xs font-medium text-indigo-700 bg-indigo-50 px-2 py-0.5 rounded-full truncate block w-fit max-w-full">{member.title}</span>
             ) : (
-              <span className="text-xs text-gray-300 group-hover:text-gray-400">+ 役職を追加</span>
+              <span className="text-xs text-gray-300 group-hover:text-gray-400">+ 追加</span>
             )}
           </button>
         )}
       </td>
 
       {/* 権限 */}
-      <td className="px-5 py-4 hidden md:table-cell">
+      <td className="px-3 py-3 hidden md:table-cell">
         <select
           value={member.role}
           disabled={isMe || saving}
           onChange={(e) => patch({ role: e.target.value })}
-          className={`text-xs border rounded px-2 py-1 font-medium focus:outline-none transition-colors ${
+          className={`text-xs border rounded px-2 py-1.5 font-medium focus:outline-none transition-colors w-full ${
             member.role === "ADMIN"
               ? "border-blue-200 bg-blue-50 text-blue-700"
               : "border-gray-200 bg-gray-50 text-gray-600"
@@ -104,25 +101,25 @@ export function MemberRow({ member, currentUserId }: { member: Member; currentUs
       </td>
 
       {/* 登録日 */}
-      <td className="px-5 py-4 text-xs text-gray-400 hidden lg:table-cell">
+      <td className="px-3 py-3 text-xs text-gray-400 hidden lg:table-cell whitespace-nowrap">
         {new Date(member.createdAt).toLocaleDateString("ja-JP")}
       </td>
 
       {/* 招待 */}
-      <td className="px-5 py-4">
+      <td className="px-3 py-3">
         <div className="flex justify-end">
           <InviteButton memberId={member.id} memberName={member.name} memberEmail={member.email} invitedAt={member.invitedAt} />
         </div>
       </td>
 
       {/* ステータス */}
-      <td className="px-5 py-4">
+      <td className="pl-3 pr-5 py-3">
         <div className="flex justify-end">
           <select
             value={member.isActive ? "active" : "inactive"}
             disabled={isMe || saving}
             onChange={(e) => patch({ isActive: e.target.value === "active" })}
-            className={`text-xs border rounded-lg px-2.5 py-1.5 font-semibold focus:outline-none transition-colors disabled:opacity-50 cursor-pointer ${
+            className={`text-xs border rounded-lg px-2 py-1.5 font-semibold focus:outline-none transition-colors disabled:opacity-50 cursor-pointer w-full ${
               member.isActive
                 ? "border-blue-200 bg-blue-50 text-blue-700"
                 : "border-gray-200 bg-gray-100 text-gray-500"
