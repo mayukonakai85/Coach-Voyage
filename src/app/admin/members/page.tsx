@@ -48,7 +48,8 @@ export default async function AdminMembersPage() {
                     <th className="text-left text-xs font-semibold text-gray-500 uppercase tracking-wider px-5 py-3 hidden sm:table-cell">役職</th>
                     <th className="text-left text-xs font-semibold text-gray-500 uppercase tracking-wider px-5 py-3 hidden md:table-cell">権限</th>
                     <th className="text-left text-xs font-semibold text-gray-500 uppercase tracking-wider px-5 py-3 hidden lg:table-cell">登録日</th>
-                    <th className="text-right text-xs font-semibold text-gray-500 uppercase tracking-wider px-5 py-3">招待・操作</th>
+                    <th className="text-right text-xs font-semibold text-gray-500 uppercase tracking-wider px-5 py-3">招待</th>
+                    <th className="text-right text-xs font-semibold text-gray-500 uppercase tracking-wider px-5 py-3">ステータス</th>
                   </tr>
                 </thead>
                 <tbody>

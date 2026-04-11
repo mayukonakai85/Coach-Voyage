@@ -108,22 +108,29 @@ export function MemberRow({ member, currentUserId }: { member: Member; currentUs
         {new Date(member.createdAt).toLocaleDateString("ja-JP")}
       </td>
 
-      {/* 招待・操作 */}
+      {/* 招待 */}
       <td className="px-5 py-4">
-        <div className="flex items-center gap-2 justify-end flex-wrap">
+        <div className="flex justify-end">
           <InviteButton memberId={member.id} memberName={member.name} memberEmail={member.email} invitedAt={member.invitedAt} />
-          <span className={`text-xs px-2 py-0.5 rounded-full font-medium ${member.isActive ? "bg-green-100 text-green-700" : "bg-gray-100 text-gray-500"}`}>
-            {member.isActive ? "利用中" : "停止中"}
-          </span>
-          <button
-            disabled={saving}
-            onClick={() => patch({ isActive: !member.isActive })}
-            className={`text-xs py-1 px-2.5 rounded-lg font-medium transition-colors disabled:opacity-50 ${
-              member.isActive ? "bg-red-50 hover:bg-red-100 text-red-700" : "bg-green-50 hover:bg-green-100 text-green-700"
+        </div>
+      </td>
+
+      {/* ステータス */}
+      <td className="px-5 py-4">
+        <div className="flex justify-end">
+          <select
+            value={member.isActive ? "active" : "inactive"}
+            disabled={isMe || saving}
+            onChange={(e) => patch({ isActive: e.target.value === "active" })}
+            className={`text-xs border rounded-lg px-2.5 py-1.5 font-semibold focus:outline-none transition-colors disabled:opacity-50 cursor-pointer ${
+              member.isActive
+                ? "border-blue-200 bg-blue-50 text-blue-700"
+                : "border-gray-200 bg-gray-100 text-gray-500"
             }`}
           >
-            {saving ? "…" : member.isActive ? "利用停止" : "利用再開"}
-          </button>
+            <option value="active">会員</option>
+            <option value="inactive">退会済</option>
+          </select>
         </div>
       </td>
     </tr>
