@@ -2,6 +2,7 @@
 
 import { useState } from "react";
 import { useRouter } from "next/navigation";
+import Link from "next/link";
 import { InviteButton } from "./InviteButton";
 
 type Member = {
@@ -65,7 +66,9 @@ export function MemberRow({ member, currentUserId }: { member: Member; currentUs
     <tr className="hover:bg-gray-50 border-b border-gray-100 last:border-0">
       {/* 名前・メール */}
       <td className="pl-5 pr-3 py-3">
-        <p className="font-medium text-gray-900 text-sm truncate">{member.name}</p>
+        <Link href={`/admin/members/${member.id}`} className="hover:underline">
+          <p className="font-medium text-gray-900 text-sm truncate">{member.name}</p>
+        </Link>
         <p className="text-xs text-gray-400 truncate">{member.email}</p>
       </td>
 

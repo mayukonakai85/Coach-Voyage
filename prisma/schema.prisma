@@ -28,6 +28,19 @@ model User {
   contentRequest       String?   // コンテンツリクエスト
   joinedMonth          String?   // 入会月（YYYY-MM形式）
   showProfilePopup     Boolean   @default(false) // 管理者が次回ログイン時にポップアップ表示を指示
+  // Googleフォーム取り込みフィールド（管理者のみ閲覧）
+  nameRoman              String?   // お名前（ローマ字）
+  address                String?   // 住所
+  birthDate              String?   // 生年月日
+  phone                  String?   // 携帯電話番号
+  companyName            String?   // 会社名/屋号
+  companyNameKana        String?   // 会社名/屋号（カナ）
+  website                String?   // ホームページ
+  referrer               String?   // 紹介者
+  coachingSchool         String?   // コーチングスクール/講座
+  coachingHours          String?   // コーチング実績（時間）
+  coachingCertifications String?   // 保持しているコーチング資格
+  formSubmittedAt        DateTime? // フォーム送信日時
   passwordResetToken   String?
   passwordResetExpires DateTime?
   invitedAt            DateTime? // 招待メール送付日時
