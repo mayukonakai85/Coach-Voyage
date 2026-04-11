@@ -1,5 +1,6 @@
 import { NextRequest, NextResponse } from "next/server";
 import { getServerSession } from "next-auth";
+import { revalidateTag } from "next/cache";
 import { authOptions } from "@/lib/auth";
 import { prisma } from "@/lib/db";
 
@@ -45,6 +46,7 @@ export async function PUT(
       },
     });
 
+    revalidateTag("videos");
     return NextResponse.json(video);
   } catch (error) {
     console.error("Video update error:", error);
@@ -64,6 +66,7 @@ export async function DELETE(
 
   try {
     await prisma.video.delete({ where: { id: params.id } });
+    revalidateTag("videos");
     return NextResponse.json({ success: true });
   } catch (error) {
     console.error("Video delete error:", error);

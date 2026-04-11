@@ -1,6 +1,7 @@
 import { getServerSession } from "next-auth";
 import { authOptions } from "@/lib/auth";
 import { prisma } from "@/lib/db";
+import { getCachedNextSeminar, getCachedUpcomingSeminars } from "@/lib/cache";
 import { SeminarCalendar } from "@/components/SeminarCalendar";
 import { MonthCalendar } from "@/components/MonthCalendar";
 import { WelcomePopup } from "@/components/WelcomePopup";
@@ -30,30 +31,8 @@ export default async function HomePage() {
   const showPopup = session?.user?.loginCount === 1 || session?.user?.loginCount === 3;
 
   const [nextSeminar, seminars, userProfile] = await Promise.all([
-    prisma.seminar.findFirst({
-      where: { isNext: true },
-      include: {
-        lecturers: {
-          orderBy: { sortOrder: "asc" },
-          include: { user: { select: { avatarUrl: true, title: true } } },
-        },
-      },
-    }),
-    prisma.seminar.findMany({
-      where: { scheduledAt: { gte: now } },
-      orderBy: { scheduledAt: "asc" },
-      select: {
-        id: true, title: true, description: true, scheduledAt: true,
-        zoomUrl: true, location: true, isOnline: true, isNext: true,
-        lecturers: {
-          orderBy: { sortOrder: "asc" },
-          select: {
-            id: true, name: true, photoUrl: true, bio: true,
-            user: { select: { avatarUrl: true, title: true } },
-          },
-        },
-      },
-    }),
+    getCachedNextSeminar(),
+    getCachedUpcomingSeminars(now.toISOString()),
     session && showPopup ? prisma.user.findUnique({
       where: { id: session.user.id },
       select: { avatarUrl: true, bio: true },

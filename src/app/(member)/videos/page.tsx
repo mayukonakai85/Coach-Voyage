@@ -1,8 +1,8 @@
 import { getServerSession } from "next-auth";
 import { authOptions } from "@/lib/auth";
 import { prisma } from "@/lib/db";
+import { getCachedVideoCounts, getCachedTopVideos } from "@/lib/cache";
 import { CATEGORIES } from "@/lib/categories";
-import { memberVideoFilter } from "@/lib/videoFilter";
 import Link from "next/link";
 import { VideoCard } from "@/components/VideoCard";
 import { LibraryTabs } from "@/components/LibraryTabs";
@@ -12,17 +12,8 @@ export default async function VoyageLibraryPage() {
   const cdnHost = process.env.BUNNY_CDN_HOSTNAME;
 
   const [counts, topVideos, viewedRecords] = await Promise.all([
-    prisma.video.groupBy({
-      by: ["category"],
-      where: memberVideoFilter(),
-      _count: { id: true },
-    }),
-    prisma.video.findMany({
-      where: memberVideoFilter(),
-      include: { _count: { select: { views: true } } },
-      orderBy: { views: { _count: "desc" } },
-      take: 3,
-    }),
+    getCachedVideoCounts(),
+    getCachedTopVideos(),
     session
       ? prisma.videoView.findMany({
           where: { userId: session.user.id },
