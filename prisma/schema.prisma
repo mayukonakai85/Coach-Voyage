@@ -39,6 +39,7 @@ model User {
   notes         Note[]
   comments      Comment[]
   likes         Like[]
+  favorites     Favorite[]
   notifications Notification[]
 }
 
@@ -61,6 +62,7 @@ model Video {
   notes        Note[]
   comments     Comment[]
   likes        Like[]
+  favorites    Favorite[]
 }
 
 // 学習ノート（動画ごとの個人メモ）
@@ -90,6 +92,18 @@ model Comment {
   parent    Comment?  @relation("CommentReplies", fields: [parentId], references: [id], onDelete: Cascade)
   replies   Comment[] @relation("CommentReplies")
   likes     Like[]
+}
+
+// お気に入り動画
+model Favorite {
+  id        String   @id @default(cuid())
+  userId    String
+  videoId   String
+  createdAt DateTime @default(now())
+  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  video     Video    @relation(fields: [videoId], references: [id], onDelete: Cascade)
+
+  @@unique([userId, videoId])
 }
 
 // いいね（コメント or 動画）

@@ -104,7 +104,7 @@ export function ProfileEditor({
     setError("");
     try {
       // Canvas でリサイズ（最大 300x300）してからアップロード
-      const resizedBlob = await resizeImage(file, 300);
+      const resizedBlob = await resizeImage(file, 150);
       const form = new FormData();
       form.append("file", resizedBlob, "avatar.jpg");
       const res = await fetch("/api/profile/avatar", { method: "POST", body: form });

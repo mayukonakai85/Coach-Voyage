@@ -41,6 +41,8 @@ export function VideoCard({ video }: { video: Video }) {
             <img
               src={video.thumbnailUrl}
               alt={video.title}
+              loading="lazy"
+              decoding="async"
               className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300"
             />
           ) : (

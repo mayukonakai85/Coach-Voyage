@@ -15,6 +15,7 @@ export function Navigation() {
     { href: "/home", label: "ホーム", exact: true },
     { href: "/videos", label: "Voyage Library", exact: false },
     { href: "/notes", label: "ノート", exact: false },
+    { href: "/favorites", label: "保存済み", exact: false },
     { href: "/members", label: "メンバー", exact: false },
   ];
 

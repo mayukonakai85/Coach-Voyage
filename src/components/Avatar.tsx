@@ -29,6 +29,8 @@ export function Avatar({ name, avatarUrl, size = "md" }: AvatarProps) {
       <img
         src={avatarUrl}
         alt={name}
+        loading="lazy"
+        decoding="async"
         className={`${sizeClass} rounded-full object-cover shrink-0`}
       />
     );
