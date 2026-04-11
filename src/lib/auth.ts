@@ -70,9 +70,10 @@ export const authOptions: NextAuthOptions = {
         // 最新のアバターURLを取得
         const user = await prisma.user.findUnique({
           where: { id: token.id },
-          select: { avatarUrl: true, name: true },
+          select: { avatarUrl: true, name: true, showProfilePopup: true },
         });
         session.user.avatarUrl = user?.avatarUrl ?? null;
+        session.user.showProfilePopup = user?.showProfilePopup ?? false;
         if (user?.name) session.user.name = user.name;
       }
       return session;

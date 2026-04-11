@@ -7,6 +7,7 @@ declare module "next-auth" {
       role: "ADMIN" | "MEMBER";
       avatarUrl: string | null;
       loginCount: number;
+      showProfilePopup: boolean;
     } & DefaultSession["user"];
   }
 

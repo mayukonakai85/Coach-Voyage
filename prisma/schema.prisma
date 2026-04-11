@@ -27,6 +27,7 @@ model User {
   learningSince        String?   // 学習開始時期
   contentRequest       String?   // コンテンツリクエスト
   joinedMonth          String?   // 入会月（YYYY-MM形式）
+  showProfilePopup     Boolean   @default(false) // 管理者が次回ログイン時にポップアップ表示を指示
   passwordResetToken   String?
   passwordResetExpires DateTime?
   invitedAt            DateTime? // 招待メール送付日時
@@ -190,6 +191,17 @@ model SeminarLecturer {
   bio       String?  // 紹介文
   sortOrder Int      @default(0)
   createdAt DateTime @default(now())
+}
+
+// イベント告知ポップアップ設定（シングルトン）
+model EventPopupSettings {
+  id         String   @id @default("singleton")
+  isEnabled  Boolean  @default(false)
+  title      String   @default("")
+  body       String   @default("")
+  buttonText String   @default("詳細を見る")
+  buttonUrl  String?
+  updatedAt  DateTime @updatedAt
 }
 
 // 興味関心タグ

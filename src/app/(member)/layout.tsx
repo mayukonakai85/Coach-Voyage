@@ -1,4 +1,5 @@
 import { Navigation } from "@/components/Navigation";
+import { LoginPopupManager } from "@/components/LoginPopupManager";
 
 export default function MemberLayout({
   children,
@@ -9,6 +10,7 @@ export default function MemberLayout({
     <div className="min-h-screen bg-gray-50">
       <Navigation />
       <main className="max-w-6xl mx-auto px-4 sm:px-6 py-8">{children}</main>
+      <LoginPopupManager />
     </div>
   );
 }
