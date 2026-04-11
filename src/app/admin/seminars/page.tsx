@@ -32,11 +32,16 @@ export default async function AdminSeminarsPage() {
                 <p className="text-sm mt-1">左のフォームから追加してください</p>
               </div>
             ) : (
-              <table className="w-full">
+              <table className="w-full table-fixed">
+                <colgroup>
+                  <col className="w-auto" />
+                  <col className="w-52 hidden sm:table-column" />
+                  <col className="w-40" />
+                </colgroup>
                 <thead className="bg-gray-50 border-b border-gray-200">
                   <tr>
                     <th className="text-left text-xs font-semibold text-gray-500 uppercase tracking-wider px-6 py-3">タイトル・日時</th>
-                    <th className="text-left text-xs font-semibold text-gray-500 uppercase tracking-wider px-6 py-3 hidden sm:table-cell">Zoom URL</th>
+                    <th className="text-left text-xs font-semibold text-gray-500 uppercase tracking-wider px-6 py-3 hidden sm:table-cell">Zoom URL / 場所</th>
                     <th className="text-right text-xs font-semibold text-gray-500 uppercase tracking-wider px-6 py-3">操作</th>
                   </tr>
                 </thead>

@@ -64,18 +64,18 @@ export function SeminarRow({ seminar }: { seminar: Seminar }) {
           </div>
         </div>
       </td>
-      <td className="px-6 py-4 hidden sm:table-cell">
+      <td className="px-6 py-4 hidden sm:table-cell max-w-0">
         {seminar.isOnline ? (
           seminar.zoomUrl ? (
             <a href={seminar.zoomUrl} target="_blank" rel="noopener noreferrer"
-              className="text-sm text-blue-600 hover:underline truncate max-w-xs block">
+              className="text-sm text-blue-600 hover:underline truncate block w-full">
               {seminar.zoomUrl}
             </a>
           ) : (
             <span className="text-sm text-gray-400">URL未設定</span>
           )
         ) : (
-          <span className="text-sm text-gray-600">{seminar.location || "場所未設定"}</span>
+          <span className="text-sm text-gray-600 truncate block w-full">{seminar.location || "場所未設定"}</span>
         )}
       </td>
       <td className="px-6 py-4 text-right">
