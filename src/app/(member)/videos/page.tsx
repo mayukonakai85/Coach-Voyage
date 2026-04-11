@@ -36,7 +36,7 @@ export default async function VoyageLibraryPage() {
       {/* ページヘッダー */}
       <div className="mb-6">
         <p className="text-sm text-blue-600 font-semibold uppercase tracking-widest mb-1">
-          Member Portal
+          Member page
         </p>
         <h1 className="text-3xl font-bold text-gray-900">Voyage Library</h1>
         <p className="text-gray-500 mt-1">{session?.user?.name} さん、こんにちは！</p>

@@ -33,7 +33,7 @@ export default async function FavoritesPage() {
   return (
     <div className="space-y-6">
       <div className="mb-6">
-        <p className="text-sm text-blue-600 font-semibold uppercase tracking-widest mb-1">Member Portal</p>
+        <p className="text-sm text-blue-600 font-semibold uppercase tracking-widest mb-1">Member page</p>
         <h1 className="text-3xl font-bold text-gray-900">Voyage Library</h1>
       </div>
       <LibraryTabs active="favorites" />

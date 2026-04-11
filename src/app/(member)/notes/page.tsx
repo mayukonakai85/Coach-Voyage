@@ -19,7 +19,7 @@ export default async function NotesPage() {
   return (
     <div>
       <div className="mb-8">
-        <p className="text-sm text-blue-600 font-semibold uppercase tracking-widest mb-1">Member Portal</p>
+        <p className="text-sm text-blue-600 font-semibold uppercase tracking-widest mb-1">Member page</p>
         <h1 className="text-2xl font-bold text-gray-900">学習ノート</h1>
         <p className="text-gray-500 mt-1">動画ごとに書いたメモの一覧</p>
       </div>

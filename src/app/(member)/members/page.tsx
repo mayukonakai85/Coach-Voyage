@@ -26,7 +26,7 @@ export default async function MembersPage() {
   return (
     <div>
       <div className="mb-8">
-        <p className="text-sm text-blue-600 font-semibold uppercase tracking-widest mb-1">Member Portal</p>
+        <p className="text-sm text-blue-600 font-semibold uppercase tracking-widest mb-1">Member page</p>
         <h1 className="text-2xl font-bold text-gray-900">メンバー一覧</h1>
         <p className="text-gray-500 text-sm mt-1">{members.length}名が参加中</p>
       </div>

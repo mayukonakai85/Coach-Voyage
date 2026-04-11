@@ -52,7 +52,7 @@ export default async function HomePage() {
 
       {/* 挨拶 */}
       <div>
-        <p className="text-sm text-blue-600 font-semibold uppercase tracking-widest mb-1">Member Portal</p>
+        <p className="text-sm text-blue-600 font-semibold uppercase tracking-widest mb-1">Member page</p>
         <h1 className="text-2xl font-bold text-gray-900">
           {session?.user?.name} さん、こんにちは！
         </h1>
