@@ -14,6 +14,7 @@ type Profile = {
   role: string;
   createdAt: Date | string;
   learningSince: string | null;
+  contentRequest: string | null;
   _count: { views: number; notes: number; comments: number };
 };
 
@@ -30,6 +31,7 @@ export function ProfileEditor({
   const [bio, setBio] = useState(profile.bio ?? "");
   const [email, setEmail] = useState(profile.email);
   const [learningSince, setLearningSince] = useState(profile.learningSince ?? "");
+  const [contentRequest, setContentRequest] = useState(profile.contentRequest ?? "");
   const [selectedTags, setSelectedTags] = useState<string[]>(initialTagIds);
   const [avatarUrl, setAvatarUrl] = useState(profile.avatarUrl ?? null);
   const [uploading, setUploading] = useState(false);
@@ -53,7 +55,7 @@ export function ProfileEditor({
       const res = await fetch("/api/profile", {
         method: "PUT",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ name, bio, email, learningSince, tagIds: selectedTags }),
+        body: JSON.stringify({ name, bio, email, learningSince, tagIds: selectedTags, contentRequest }),
       });
       if (res.ok) {
         setSaved(true);
@@ -295,6 +297,9 @@ export function ProfileEditor({
                   </button>
                 ))}
               </div>
+              <p className="text-xs text-gray-400 mt-2">
+                興味・関心を登録するとセミナー内容やコンテンツ制作に活かされます
+              </p>
             </div>
           )}
           {error && <p className="text-sm text-red-500">{error}</p>}
@@ -306,6 +311,26 @@ export function ProfileEditor({
             {saving ? "保存中…" : saved ? "保存しました ✓" : "保存する"}
           </button>
         </div>
+      </div>
+
+      {/* コンテンツリクエスト */}
+      <div className="rounded-2xl border border-blue-100 bg-blue-50 p-6 shadow-sm mt-4">
+        <h2 className="font-bold text-gray-800 mb-1">コンテンツリクエスト</h2>
+        <p className="text-xs text-gray-500 mb-4">見たいセミナーのテーマやショート動画のネタをリクエストできます。いただいたリクエストはコンテンツ制作に活かします。</p>
+        <textarea
+          value={contentRequest}
+          onChange={(e) => setContentRequest(e.target.value)}
+          rows={4}
+          className="w-full rounded-xl border border-blue-200 bg-white px-3.5 py-2.5 text-sm text-gray-800 placeholder-gray-300 focus:border-blue-400 focus:outline-none focus:ring-1 focus:ring-blue-300 resize-none"
+          placeholder="例：コーチングスキルを仕事に活かす方法、傾聴の実践練習など"
+        />
+        <button
+          onClick={handleSave}
+          disabled={saving || !name.trim()}
+          className="mt-3 w-full bg-blue-600 hover:bg-blue-700 disabled:opacity-40 text-white font-bold py-2.5 rounded-xl transition-colors text-sm"
+        >
+          {saving ? "保存中…" : saved ? "保存しました ✓" : "リクエストを送る"}
+        </button>
       </div>
 
       {/* パスワード変更 */}

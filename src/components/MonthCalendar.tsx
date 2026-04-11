@@ -115,11 +115,11 @@ export function MonthCalendar({ seminars }: { seminars: Seminar[] }) {
               >
                 {day}
               </button>
-              {/* 両方ある日はドットを2色表示 */}
-              {hasSeminar && !isSelected && (
-                <div className="flex gap-0.5 mt-0.5">
-                  {hasOnlineEvent && <span className="w-1.5 h-1.5 rounded-full bg-blue-500" />}
-                  {hasOfflineEvent && <span className="w-1.5 h-1.5 rounded-full bg-green-500" />}
+              {/* オンライン・オフライン両方ある日だけ2色ドットを表示 */}
+              {hasSeminar && !isSelected && hasOnlineEvent && hasOfflineEvent && (
+                <div className="flex gap-0.5 mt-1">
+                  <span className="w-1.5 h-1.5 rounded-full bg-blue-500" />
+                  <span className="w-1.5 h-1.5 rounded-full bg-green-500" />
                 </div>
               )}
             </div>

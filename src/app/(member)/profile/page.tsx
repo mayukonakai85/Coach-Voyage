@@ -20,6 +20,7 @@ export default async function ProfilePage() {
         role: true,
         createdAt: true,
         learningSince: true,
+        contentRequest: true,
         tags: { select: { tagId: true } },
         _count: { select: { views: true, notes: true, comments: true } },
       },

@@ -25,6 +25,7 @@ model User {
   isActive             Boolean   @default(true)
   loginCount           Int       @default(0)
   learningSince        String?   // 学習開始時期
+  contentRequest       String?   // コンテンツリクエスト
   passwordResetToken   String?
   passwordResetExpires DateTime?
   invitedAt            DateTime? // 招待メール送付日時

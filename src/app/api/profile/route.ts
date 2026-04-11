@@ -33,7 +33,7 @@ export async function PUT(req: NextRequest) {
   const session = await getServerSession(authOptions);
   if (!session) return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
 
-  const { name, bio, email, currentPassword, newPassword, learningSince, tagIds } = await req.json();
+  const { name, bio, email, currentPassword, newPassword, learningSince, tagIds, contentRequest } = await req.json();
   if (!name?.trim()) {
     return NextResponse.json({ error: "名前は必須です" }, { status: 400 });
   }
@@ -42,6 +42,7 @@ export async function PUT(req: NextRequest) {
     name: name.trim(),
     bio: bio?.trim() || null,
     learningSince: learningSince?.trim() || null,
+    contentRequest: contentRequest?.trim() || null,
   };
 
   // メール変更

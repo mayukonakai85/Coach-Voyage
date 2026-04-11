@@ -1,6 +1,7 @@
 import { prisma } from "@/lib/db";
 import Link from "next/link";
 import { ImportButton } from "./ImportButton";
+import { AdminGuide } from "@/components/AdminGuide";
 
 export default async function AdminDashboard() {
   const now = new Date();
@@ -98,28 +99,30 @@ export default async function AdminDashboard() {
         <p className="text-gray-500 mt-1 text-sm">Coach Voyage 管理パネル</p>
       </div>
 
-      {/* クイックガイド */}
-      <div className="bg-orange-50 border border-orange-100 rounded-xl p-4">
-        <p className="text-xs font-bold text-orange-600 mb-3">管理ガイド</p>
-        <div className="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-3 gap-2">
+      {/* クイックアクション */}
+      <div className="bg-white rounded-xl border border-gray-200 p-5">
+        <h2 className="font-bold text-gray-800 text-sm mb-4">クイックアクション</h2>
+        <div className="grid grid-cols-2 sm:grid-cols-4 gap-3">
           {[
-            { icon: "👥", title: "会員管理", desc: "会員を追加→招待メールを送信→メンバーがパスワード設定してログイン" },
-            { icon: "🎬", title: "動画管理", desc: "Bunny.net の動画IDを貼り付けて追加。予約公開日時の設定も可能" },
-            { icon: "📅", title: "イベント管理", desc: "イベントを追加してZoom URLや会場を設定。「次回」にするとバナー表示" },
-            { icon: "👨‍🏫", title: "講師管理", desc: "イベント一覧の「講師」ボタンから登録。メンバー選択または外部講師を追加" },
-            { icon: "📊", title: "視聴データ", desc: "動画別・会員別の視聴状況を確認できます" },
-            { icon: "🏷️", title: "タグ管理", desc: "興味関心タグを作成。メンバーがプロフィールで選択できます" },
+            { href: "/admin/members", label: "会員を招待", icon: "👤" },
+            { href: "/admin/seminars", label: "イベントを追加", icon: "📅" },
+            { href: "/admin/analytics", label: "視聴データを確認", icon: "📊" },
+            { href: "/admin/tags", label: "タグを管理", icon: "🏷️" },
           ].map((item) => (
-            <div key={item.title} className="flex items-start gap-2.5 bg-white rounded-lg px-3 py-2.5">
-              <span className="text-base shrink-0 mt-0.5">{item.icon}</span>
-              <div className="min-w-0">
-                <p className="text-xs font-bold text-gray-800">{item.title}</p>
-                <p className="text-xs text-gray-500 leading-relaxed mt-0.5">{item.desc}</p>
-              </div>
-            </div>
+            <Link
+              key={item.href}
+              href={item.href}
+              className="flex items-center gap-2 p-3 rounded-lg bg-gray-50 hover:bg-orange-50 hover:text-orange-700 transition-colors text-sm font-medium text-gray-700"
+            >
+              <span className="text-base">{item.icon}</span>
+              {item.label}
+            </Link>
           ))}
         </div>
       </div>
+
+      {/* 管理ガイド（折りたたみ） */}
+      <AdminGuide />
 
       {/* 統計カード */}
       <div className="grid grid-cols-2 xl:grid-cols-4 gap-4">
@@ -144,12 +147,7 @@ export default async function AdminDashboard() {
         <div className="bg-white rounded-xl border border-gray-200 overflow-hidden">
           <div className="flex items-center justify-between px-5 py-4 border-b border-gray-100">
             <h2 className="font-bold text-gray-800 text-sm">最近の動画</h2>
-            <div className="flex items-center gap-2">
-              <ImportButton />
-              <Link href="/admin/videos/new" className="btn-primary text-xs py-1.5 px-3">
-                追加
-              </Link>
-            </div>
+            <ImportButton />
           </div>
           {recentVideos.length === 0 ? (
             <p className="text-sm text-gray-400 text-center py-8">動画がまだありません</p>
@@ -259,29 +257,6 @@ export default async function AdminDashboard() {
           </div>
         </div>
 
-        {/* クイックリンク */}
-        <div className="bg-white rounded-xl border border-gray-200 p-5">
-          <h2 className="font-bold text-gray-800 text-sm mb-4">クイックアクション</h2>
-          <div className="grid grid-cols-2 gap-3">
-            {[
-              { href: "/admin/videos/new", label: "動画を追加", icon: "🎬" },
-              { href: "/admin/members", label: "会員を招待", icon: "👤" },
-              { href: "/admin/seminars", label: "イベントを追加", icon: "📅" },
-              { href: "/admin/analytics", label: "視聴データを確認", icon: "📊" },
-              { href: "/admin/tags", label: "タグを管理", icon: "🏷️" },
-              { href: "/admin/tutorial", label: "管理者ガイド", icon: "📖" },
-            ].map((item) => (
-              <Link
-                key={item.href}
-                href={item.href}
-                className="flex items-center gap-2 p-3 rounded-lg bg-gray-50 hover:bg-orange-50 hover:text-orange-700 transition-colors text-sm font-medium text-gray-700"
-              >
-                <span className="text-base">{item.icon}</span>
-                {item.label}
-              </Link>
-            ))}
-          </div>
-        </div>
       </div>
     </div>
   );
