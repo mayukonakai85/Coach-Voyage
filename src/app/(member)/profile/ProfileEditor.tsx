@@ -68,7 +68,14 @@ export function ProfileEditor({
   const [bio, setBio] = useState(profile.bio ?? "");
   const [email, setEmail] = useState(profile.email);
   const [learningSince, setLearningSince] = useState(profile.learningSince ?? "");
-  const [contentRequest, setContentRequest] = useState(profile.contentRequest ?? "");
+  const parsedRequest = (() => {
+    try { return profile.contentRequest ? JSON.parse(profile.contentRequest) : {}; }
+    catch { return {}; }
+  })();
+  const [requestType, setRequestType] = useState<string>(parsedRequest.type ?? "");
+  const [requestTheme, setRequestTheme] = useState<string>(parsedRequest.theme ?? "");
+  const [requestDetail, setRequestDetail] = useState<string>(parsedRequest.detail ?? "");
+  const [requestSaved, setRequestSaved] = useState(false);
   const [selectedTags, setSelectedTags] = useState<string[]>(initialTagIds);
   const [avatarUrl, setAvatarUrl] = useState(profile.avatarUrl ?? null);
   const [uploading, setUploading] = useState(false);
@@ -91,7 +98,12 @@ export function ProfileEditor({
       const res = await fetch("/api/profile", {
         method: "PUT",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ name, bio, email, learningSince, tagIds: selectedTags, contentRequest }),
+        body: JSON.stringify({
+          name, bio, email, learningSince, tagIds: selectedTags,
+          contentRequest: (requestType || requestTheme || requestDetail)
+            ? JSON.stringify({ type: requestType, theme: requestTheme, detail: requestDetail })
+            : null,
+        }),
       });
       if (res.ok) {
         setSaved(true);
@@ -99,6 +111,31 @@ export function ProfileEditor({
       } else {
         const data = await res.json();
         setError(data.error ?? "保存に失敗しました");
+      }
+    } finally {
+      setSaving(false);
+    }
+  }
+
+  async function handleRequestSave() {
+    setSaving(true);
+    setError("");
+    try {
+      const res = await fetch("/api/profile", {
+        method: "PUT",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          name, bio, email, learningSince,
+          contentRequest: (requestType || requestTheme || requestDetail)
+            ? JSON.stringify({ type: requestType, theme: requestTheme, detail: requestDetail })
+            : null,
+        }),
+      });
+      if (res.ok) {
+        setRequestSaved(true);
+      } else {
+        const data = await res.json();
+        setError(data.error ?? "送信に失敗しました");
       }
     } finally {
       setSaving(false);
@@ -351,22 +388,61 @@ export function ProfileEditor({
 
         {/* コンテンツリクエスト */}
         <Section title="コンテンツリクエスト" description="セミナーやショート動画で扱ってほしいテーマをリクエストできます">
-          <div className="mt-2 space-y-3">
-            <textarea
-              value={contentRequest}
-              onChange={(e) => setContentRequest(e.target.value)}
-              rows={4}
-              className="w-full rounded-xl border border-gray-200 bg-white px-3.5 py-2.5 text-sm text-gray-800 placeholder-gray-300 focus:border-blue-400 focus:outline-none focus:ring-1 focus:ring-blue-300 resize-none"
-              placeholder="例：コーチングスキルを仕事に活かす方法、傾聴の実践練習など"
-            />
-            <button
-              onClick={handleSave}
-              disabled={saving || !name.trim()}
-              className="w-full bg-blue-600 hover:bg-blue-700 disabled:opacity-40 text-white font-bold py-2.5 rounded-xl transition-colors text-sm"
-            >
-              {saving ? "保存中…" : saved ? "保存しました ✓" : "リクエストを送る"}
-            </button>
-          </div>
+          {requestSaved ? (
+            <div className="mt-2 rounded-xl bg-blue-50 border border-blue-100 px-5 py-8 text-center">
+              <p className="text-2xl mb-2">🎉</p>
+              <p className="font-bold text-blue-700 text-sm">リクエストを受け取りました！</p>
+              <p className="text-xs text-blue-500 mt-1">コンテンツ制作に活かします。ありがとうございます。</p>
+              <button
+                onClick={() => setRequestSaved(false)}
+                className="mt-4 text-xs text-blue-500 hover:underline"
+              >
+                別のリクエストを送る
+              </button>
+            </div>
+          ) : (
+            <div className="mt-2 space-y-4">
+              <div>
+                <label className="block text-sm font-medium text-gray-700 mb-1.5">種別</label>
+                <select
+                  value={requestType}
+                  onChange={(e) => setRequestType(e.target.value)}
+                  className="w-full rounded-xl border border-gray-200 px-3.5 py-2.5 text-sm text-gray-800 focus:border-blue-400 focus:outline-none focus:ring-1 focus:ring-blue-300 bg-white"
+                >
+                  <option value="">選択してください</option>
+                  <option value="セミナー">セミナー</option>
+                  <option value="動画">動画</option>
+                </select>
+              </div>
+              <div>
+                <label className="block text-sm font-medium text-gray-700 mb-1.5">テーマ</label>
+                <textarea
+                  value={requestTheme}
+                  onChange={(e) => setRequestTheme(e.target.value)}
+                  rows={2}
+                  className="w-full rounded-xl border border-gray-200 px-3.5 py-2.5 text-sm text-gray-800 placeholder-gray-300 focus:border-blue-400 focus:outline-none focus:ring-1 focus:ring-blue-300 resize-none"
+                  placeholder="例：コーチングスキルを日常のコミュニケーションに活かす方法"
+                />
+              </div>
+              <div>
+                <label className="block text-sm font-medium text-gray-700 mb-1.5">知りたいこと</label>
+                <textarea
+                  value={requestDetail}
+                  onChange={(e) => setRequestDetail(e.target.value)}
+                  rows={3}
+                  className="w-full rounded-xl border border-gray-200 px-3.5 py-2.5 text-sm text-gray-800 placeholder-gray-300 focus:border-blue-400 focus:outline-none focus:ring-1 focus:ring-blue-300 resize-none"
+                  placeholder="例：相手の話を引き出すための質問の仕方や、職場での実践例を知りたい"
+                />
+              </div>
+              <button
+                onClick={handleRequestSave}
+                disabled={saving || (!requestType && !requestTheme && !requestDetail)}
+                className="w-full bg-blue-600 hover:bg-blue-700 disabled:opacity-40 text-white font-bold py-2.5 rounded-xl transition-colors text-sm"
+              >
+                {saving ? "送信中…" : "リクエストを送る"}
+              </button>
+            </div>
+          )}
         </Section>
 
         {/* パスワード変更 */}
