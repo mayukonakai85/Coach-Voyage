@@ -8,14 +8,15 @@ import { MemberRow } from "./MemberRow";
 
 export default async function AdminMembersPage() {
   const session = await getServerSession(authOptions);
-  const members = await prisma.user.findMany({
+  const statusOrder: Record<string, number> = { PENDING: 0, ACTIVE: 1, INACTIVE: 2 };
+  const members = (await prisma.user.findMany({
     where: { role: { in: ["MEMBER", "ADMIN"] } },
     orderBy: { createdAt: "asc" },
     select: {
       id: true, name: true, email: true, role: true, title: true,
       isActive: true, memberStatus: true, createdAt: true, invitedAt: true, joinedMonth: true, lastLoginAt: true,
     },
-  });
+  })).sort((a, b) => (statusOrder[a.memberStatus] ?? 1) - (statusOrder[b.memberStatus] ?? 1));
 
   return (
     <div>
