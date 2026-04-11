@@ -3,6 +3,7 @@ import { authOptions } from "@/lib/auth";
 import { prisma } from "@/lib/db";
 import { redirect } from "next/navigation";
 import { VideoCard } from "@/components/VideoCard";
+import { LibraryTabs } from "@/components/LibraryTabs";
 
 export default async function WatchLaterPage() {
   const session = await getServerSession(authOptions);
@@ -30,11 +31,12 @@ export default async function WatchLaterPage() {
 
   return (
     <div className="space-y-6">
-      <div>
-        <p className="text-sm text-purple-600 font-semibold uppercase tracking-widest mb-1">Member Portal</p>
-        <h1 className="text-2xl font-bold text-gray-900">後で見る</h1>
-        <p className="text-sm text-gray-500 mt-1">{list.length}本の動画</p>
+      <div className="mb-6">
+        <p className="text-sm text-blue-600 font-semibold uppercase tracking-widest mb-1">Member Portal</p>
+        <h1 className="text-3xl font-bold text-gray-900">Voyage Library</h1>
       </div>
+      <LibraryTabs active="watch-later" />
+      <p className="text-sm text-gray-500 mb-6">{list.length}本の動画</p>
 
       {list.length === 0 ? (
         <div className="card p-12 text-center text-gray-400">

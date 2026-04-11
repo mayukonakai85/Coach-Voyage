@@ -3,6 +3,7 @@ import { authOptions } from "@/lib/auth";
 import { prisma } from "@/lib/db";
 import { redirect } from "next/navigation";
 import { VideoCard } from "@/components/VideoCard";
+import { LibraryTabs } from "@/components/LibraryTabs";
 
 export default async function FavoritesPage() {
   const session = await getServerSession(authOptions);
@@ -31,11 +32,12 @@ export default async function FavoritesPage() {
 
   return (
     <div className="space-y-6">
-      <div>
+      <div className="mb-6">
         <p className="text-sm text-blue-600 font-semibold uppercase tracking-widest mb-1">Member Portal</p>
-        <h1 className="text-2xl font-bold text-gray-900">お気に入り</h1>
-        <p className="text-sm text-gray-500 mt-1">{favorites.length}本の動画</p>
+        <h1 className="text-3xl font-bold text-gray-900">Voyage Library</h1>
       </div>
+      <LibraryTabs active="favorites" />
+      <p className="text-sm text-gray-500 mb-6">{favorites.length}本の動画</p>
 
       {favorites.length === 0 ? (
         <div className="card p-12 text-center text-gray-400">

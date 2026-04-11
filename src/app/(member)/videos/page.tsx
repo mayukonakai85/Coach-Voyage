@@ -5,6 +5,7 @@ import { CATEGORIES } from "@/lib/categories";
 import { memberVideoFilter } from "@/lib/videoFilter";
 import Link from "next/link";
 import { VideoCard } from "@/components/VideoCard";
+import { LibraryTabs } from "@/components/LibraryTabs";
 
 export default async function VoyageLibraryPage() {
   const session = await getServerSession(authOptions);
@@ -42,13 +43,15 @@ export default async function VoyageLibraryPage() {
   return (
     <div>
       {/* ページヘッダー */}
-      <div className="mb-10">
+      <div className="mb-6">
         <p className="text-sm text-blue-600 font-semibold uppercase tracking-widest mb-1">
           Member Portal
         </p>
         <h1 className="text-3xl font-bold text-gray-900">Voyage Library</h1>
         <p className="text-gray-500 mt-1">{session?.user?.name} さん、こんにちは！</p>
       </div>
+
+      <LibraryTabs active="all" />
 
       {/* カテゴリグリッド */}
       <div className="grid grid-cols-1 sm:grid-cols-2 gap-5 mb-12">
