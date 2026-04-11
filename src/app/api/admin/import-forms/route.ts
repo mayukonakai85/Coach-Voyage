@@ -45,8 +45,8 @@ export async function POST(req: NextRequest) {
       ? `${submittedAt.getFullYear()}-${String(submittedAt.getMonth() + 1).padStart(2, "0")}`
       : undefined;
 
+    const nameValue = row.name?.trim() || undefined;
     const data = {
-      name: row.name?.trim() || undefined,
       nameRoman: row.nameRoman?.trim() || undefined,
       address: row.address?.trim() || undefined,
       birthDate: row.birthDate?.trim() || undefined,
@@ -65,13 +65,13 @@ export async function POST(req: NextRequest) {
     try {
       const existing = await prisma.user.findUnique({ where: { email } });
       if (existing) {
-        await prisma.user.update({ where: { email }, data });
+        await prisma.user.update({ where: { email }, data: { ...data, ...(nameValue ? { name: nameValue } : {}) } });
         updated++;
       } else {
         await prisma.user.create({
           data: {
             email,
-            name: data.name ?? email,
+            name: nameValue ?? email,
             password: "",
             isActive: false,
             memberStatus: "PENDING",

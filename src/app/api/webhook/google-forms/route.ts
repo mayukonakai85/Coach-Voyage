@@ -24,8 +24,8 @@ export async function POST(req: NextRequest) {
   const now = new Date();
   const joinedMonth = `${now.getFullYear()}-${String(now.getMonth() + 1).padStart(2, "0")}`;
 
+  const nameValue = body.name?.trim() || undefined;
   const formData = {
-    name: body.name?.trim() || undefined,
     nameRoman: body.nameRoman?.trim() || undefined,
     address: body.address?.trim() || undefined,
     birthDate: body.birthDate?.trim() || undefined,
@@ -47,7 +47,7 @@ export async function POST(req: NextRequest) {
   if (existing) {
     await prisma.user.update({
       where: { email },
-      data: formData,
+      data: { ...formData, ...(nameValue ? { name: nameValue } : {}) },
     });
     return NextResponse.json({ status: "updated", userId: existing.id });
   } else {
@@ -55,7 +55,7 @@ export async function POST(req: NextRequest) {
     const newUser = await prisma.user.create({
       data: {
         email,
-        name: formData.name ?? email,
+        name: nameValue ?? email,
         password: "", // 招待メール経由でパスワード設定させる
         isActive: false,
         memberStatus: "PENDING",
