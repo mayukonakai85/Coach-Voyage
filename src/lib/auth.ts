@@ -12,27 +12,22 @@ export const authOptions: NextAuthOptions = {
         password: { label: "パスワード", type: "password" },
       },
       async authorize(credentials) {
-        if (!credentials?.email || !credentials?.password) {
-          return null;
-        }
+        if (!credentials?.email || !credentials?.password) return null;
 
         const user = await prisma.user.findUnique({
           where: { email: credentials.email },
+          select: {
+            id: true, email: true, name: true, password: true,
+            role: true, isActive: true, avatarUrl: true, showProfilePopup: true,
+          },
         });
 
-        if (!user) return null;
+        if (!user || !user.isActive) return null;
 
-        // 無効化された会員はログイン不可
-        if (!user.isActive) return null;
-
-        const isPasswordValid = await bcrypt.compare(
-          credentials.password,
-          user.password
-        );
-
+        const isPasswordValid = await bcrypt.compare(credentials.password, user.password);
         if (!isPasswordValid) return null;
 
-        // ログイン回数をインクリメント＆最終ログイン日時を更新
+        // ログイン回数・最終ログイン日時を更新（1回のクエリで完結）
         const updated = await prisma.user.update({
           where: { id: user.id },
           data: { loginCount: { increment: 1 }, lastLoginAt: new Date() },
@@ -45,6 +40,8 @@ export const authOptions: NextAuthOptions = {
           name: user.name,
           role: user.role as "ADMIN" | "MEMBER",
           loginCount: updated.loginCount,
+          avatarUrl: user.avatarUrl,
+          showProfilePopup: user.showProfilePopup,
         };
       },
     }),
@@ -54,27 +51,33 @@ export const authOptions: NextAuthOptions = {
     maxAge: 30 * 24 * 60 * 60, // 30日
   },
   callbacks: {
-    async jwt({ token, user }) {
+    async jwt({ token, user, trigger, session: sessionUpdate }) {
+      // 初回ログイン時：authorize の戻り値をトークンに保存
       if (user) {
         token.role = user.role;
         token.id = user.id;
-        token.loginCount = (user as { loginCount?: number }).loginCount ?? 1;
+        token.loginCount = user.loginCount;
+        token.avatarUrl = user.avatarUrl;
+        token.showProfilePopup = user.showProfilePopup;
+        if (user.name) token.name = user.name;
+      }
+      // プロフィール更新時：クライアントから update() で差分だけ反映
+      if (trigger === "update" && sessionUpdate) {
+        if (sessionUpdate.name !== undefined) token.name = sessionUpdate.name;
+        if (sessionUpdate.avatarUrl !== undefined) token.avatarUrl = sessionUpdate.avatarUrl;
+        if (sessionUpdate.showProfilePopup !== undefined) token.showProfilePopup = sessionUpdate.showProfilePopup;
       }
       return token;
     },
     async session({ session, token }) {
+      // DBへのアクセスなし：トークンから読むだけ
       if (token && session.user) {
         session.user.role = token.role;
         session.user.id = token.id;
-        session.user.loginCount = token.loginCount as number ?? 1;
-        // 最新のアバターURLを取得
-        const user = await prisma.user.findUnique({
-          where: { id: token.id },
-          select: { avatarUrl: true, name: true, showProfilePopup: true },
-        });
-        session.user.avatarUrl = user?.avatarUrl ?? null;
-        session.user.showProfilePopup = user?.showProfilePopup ?? false;
-        if (user?.name) session.user.name = user.name;
+        session.user.loginCount = token.loginCount ?? 1;
+        session.user.avatarUrl = token.avatarUrl ?? null;
+        session.user.showProfilePopup = token.showProfilePopup ?? false;
+        if (token.name) session.user.name = token.name as string;
       }
       return session;
     },

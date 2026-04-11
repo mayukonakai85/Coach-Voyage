@@ -13,6 +13,9 @@ declare module "next-auth" {
 
   interface User {
     role: "ADMIN" | "MEMBER";
+    loginCount: number;
+    avatarUrl: string | null;
+    showProfilePopup: boolean;
   }
 }
 
@@ -21,5 +24,7 @@ declare module "next-auth/jwt" {
     role: "ADMIN" | "MEMBER";
     id: string;
     loginCount: number;
+    avatarUrl: string | null;
+    showProfilePopup: boolean;
   }
 }

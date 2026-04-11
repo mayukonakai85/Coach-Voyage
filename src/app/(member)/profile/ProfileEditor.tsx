@@ -1,6 +1,7 @@
 "use client";
 
 import { useState, useRef } from "react";
+import { useSession } from "next-auth/react";
 import { Avatar } from "@/components/Avatar";
 
 type Tag = { id: string; name: string };
@@ -64,6 +65,7 @@ export function ProfileEditor({
   allTags: Tag[];
   initialTagIds: string[];
 }) {
+  const { update: updateSession } = useSession();
   const [name, setName] = useState(profile.name);
   const [bio, setBio] = useState(profile.bio ?? "");
   const [email, setEmail] = useState(profile.email);
@@ -108,6 +110,7 @@ export function ProfileEditor({
       if (res.ok) {
         setSaved(true);
         setTimeout(() => setSaved(false), 2000);
+        await updateSession({ name });
       } else {
         const data = await res.json();
         setError(data.error ?? "保存に失敗しました");
@@ -185,6 +188,7 @@ export function ProfileEditor({
       if (res.ok) {
         const data = await res.json();
         setAvatarUrl(data.avatarUrl);
+        await updateSession({ avatarUrl: data.avatarUrl });
       } else {
         let errMsg = "アップロードに失敗しました";
         try {
