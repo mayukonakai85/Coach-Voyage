@@ -16,7 +16,20 @@ type Member = {
   createdAt: Date;
   invitedAt: Date | null;
   joinedMonth: string | null;
+  lastLoginAt: Date | null;
 };
+
+function formatLastLogin(date: Date | null): string {
+  if (!date) return "未ログイン";
+  const diff = Date.now() - new Date(date).getTime();
+  const days = Math.floor(diff / (1000 * 60 * 60 * 24));
+  if (days === 0) return "今日";
+  if (days === 1) return "昨日";
+  if (days < 30) return `${days}日前`;
+  const months = Math.floor(days / 30);
+  if (months < 12) return `${months}ヶ月前`;
+  return `${Math.floor(months / 12)}年以上前`;
+}
 
 export function MemberRow({ member, currentUserId }: { member: Member; currentUserId: string }) {
   const router = useRouter();
@@ -71,6 +84,7 @@ export function MemberRow({ member, currentUserId }: { member: Member; currentUs
           <p className="font-medium text-gray-900 text-sm truncate">{member.name}</p>
         </Link>
         <p className="text-xs text-gray-400 truncate">{member.email}</p>
+        <p className="text-xs text-gray-300 mt-0.5">{formatLastLogin(member.lastLoginAt)}</p>
       </td>
 
       {/* 役職 */}

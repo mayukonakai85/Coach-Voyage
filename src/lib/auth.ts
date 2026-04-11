@@ -32,10 +32,10 @@ export const authOptions: NextAuthOptions = {
 
         if (!isPasswordValid) return null;
 
-        // ログイン回数をインクリメント
+        // ログイン回数をインクリメント＆最終ログイン日時を更新
         const updated = await prisma.user.update({
           where: { id: user.id },
-          data: { loginCount: { increment: 1 } },
+          data: { loginCount: { increment: 1 }, lastLoginAt: new Date() },
           select: { loginCount: true },
         });
 

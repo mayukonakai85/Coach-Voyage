@@ -163,6 +163,7 @@ export default async function MemberDetailPage({ params }: { params: { id: strin
             { label: "権限", value: member.role === "ADMIN" ? "管理者" : "一般会員" },
             { label: "入会月", value: member.joinedMonth ? (() => { const [y,m] = member.joinedMonth!.split("-"); return `${y}年${parseInt(m)}月`; })() : null },
             { label: "ログイン回数", value: `${member.loginCount}回` },
+            { label: "最終ログイン", value: member.lastLoginAt ? new Date(member.lastLoginAt).toLocaleString("ja-JP", { year: "numeric", month: "long", day: "numeric", hour: "2-digit", minute: "2-digit" }) : null },
             { label: "招待日", value: member.invitedAt ? new Date(member.invitedAt).toLocaleDateString("ja-JP") : null },
             { label: "アカウント作成日", value: new Date(member.createdAt).toLocaleDateString("ja-JP") },
           ].map((f) => (
