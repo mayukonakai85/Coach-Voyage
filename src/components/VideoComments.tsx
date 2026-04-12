@@ -142,6 +142,7 @@ function CommentItem({
   videoId,
   members,
   onDelete,
+  onEdit,
   onReplyPosted,
   depth = 0,
 }: {
@@ -151,6 +152,7 @@ function CommentItem({
   videoId: string;
   members: Member[];
   onDelete: (id: string) => void;
+  onEdit: (id: string, content: string) => void;
   onReplyPosted: (parentId: string, reply: CommentData) => void;
   depth?: number;
 }) {
@@ -162,6 +164,27 @@ function CommentItem({
   const [showReply, setShowReply] = useState(false);
   const [replyText, setReplyText] = useState("");
   const [posting, setPosting] = useState(false);
+  const [editing, setEditing] = useState(false);
+  const [editText, setEditText] = useState(comment.content);
+  const [saving, setSaving] = useState(false);
+
+  async function handleEdit() {
+    if (!editText.trim() || saving) return;
+    setSaving(true);
+    try {
+      const res = await fetch(`/api/videos/${videoId}/comments/${comment.id}`, {
+        method: "PATCH",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ content: editText }),
+      });
+      if (res.ok) {
+        onEdit(comment.id, editText.trim());
+        setEditing(false);
+      }
+    } finally {
+      setSaving(false);
+    }
+  }
 
   async function handleLike() {
     const res = await fetch("/api/likes", {
@@ -204,18 +227,57 @@ function CommentItem({
           <div className="flex items-center gap-2 flex-wrap">
             <span className="font-semibold text-xs text-gray-700">{comment.user.name}</span>
             <span className="text-xs text-gray-300">{formatDate(comment.createdAt)}</span>
-            {(isOwn || isAdmin) && (
-              <button
-                onClick={() => onDelete(comment.id)}
-                className="text-xs text-gray-300 hover:text-red-400 transition-colors opacity-0 group-hover:opacity-100 ml-auto"
-              >
-                削除
-              </button>
-            )}
+            <div className="ml-auto flex items-center gap-2 opacity-0 group-hover:opacity-100 transition-opacity">
+              {isOwn && !editing && (
+                <button
+                  onClick={() => { setEditText(comment.content); setEditing(true); }}
+                  className="text-xs text-gray-300 hover:text-blue-400 transition-colors"
+                >
+                  編集
+                </button>
+              )}
+              {(isOwn || isAdmin) && (
+                <button
+                  onClick={() => onDelete(comment.id)}
+                  className="text-xs text-gray-300 hover:text-red-400 transition-colors"
+                >
+                  削除
+                </button>
+              )}
+            </div>
           </div>
-          <p className="text-sm text-gray-700 mt-1 whitespace-pre-wrap break-words leading-relaxed">
-            {renderWithMentions(comment.content)}
-          </p>
+
+          {editing ? (
+            <div className="mt-1.5 space-y-1.5">
+              <MentionTextarea
+                value={editText}
+                onChange={setEditText}
+                onKeyDown={(e) => {
+                  if (e.key === "Enter" && (e.metaKey || e.ctrlKey)) handleEdit();
+                  if (e.key === "Escape") setEditing(false);
+                }}
+                rows={2}
+                className="w-full rounded-lg border border-blue-200 bg-white px-2.5 py-1.5 text-sm text-gray-800 focus:border-blue-400 focus:outline-none focus:ring-1 focus:ring-blue-300 resize-none"
+                members={members}
+              />
+              <div className="flex items-center gap-2">
+                <button
+                  onClick={handleEdit}
+                  disabled={!editText.trim() || saving}
+                  className="text-xs bg-blue-600 hover:bg-blue-700 disabled:opacity-40 text-white font-semibold px-3 py-1 rounded-lg transition-colors"
+                >
+                  {saving ? "保存中…" : "保存"}
+                </button>
+                <button onClick={() => setEditing(false)} className="text-xs text-gray-400 hover:text-gray-600">
+                  キャンセル
+                </button>
+              </div>
+            </div>
+          ) : (
+            <p className="text-sm text-gray-700 mt-1 whitespace-pre-wrap break-words leading-relaxed">
+              {renderWithMentions(comment.content)}
+            </p>
+          )}
           <div className="flex items-center gap-3 mt-2">
             <button
               onClick={handleLike}
@@ -269,6 +331,7 @@ function CommentItem({
           videoId={videoId}
           members={members}
           onDelete={onDelete}
+          onEdit={onEdit}
           onReplyPosted={onReplyPosted}
           depth={1}
         />
@@ -330,6 +393,16 @@ export function VideoComments({
     );
   }
 
+  function handleEdit(commentId: string, content: string) {
+    setComments((prev) =>
+      prev.map((c) =>
+        c.id === commentId
+          ? { ...c, content }
+          : { ...c, replies: c.replies?.map((r) => r.id === commentId ? { ...r, content } : r) ?? [] }
+      )
+    );
+  }
+
   function handleReplyPosted(parentId: string, reply: CommentData) {
     setComments((prev) =>
       prev.map((c) => c.id === parentId ? { ...c, replies: [...(c.replies ?? []), reply] } : c)
@@ -369,6 +442,7 @@ export function VideoComments({
               videoId={videoId}
               members={members}
               onDelete={handleDelete}
+              onEdit={handleEdit}
               onReplyPosted={handleReplyPosted}
             />
           ))}
