@@ -15,14 +15,13 @@ type VideoFormData = {
   isPublished: boolean;
   schedulePublishAt: string;
   isSpecialSeminar: boolean;
-  lecturers: string[];
 };
 
 export function VideoForm({
   initialData,
   videoId,
 }: {
-  initialData?: Partial<VideoFormData>;
+  initialData?: Partial<VideoFormData & { lecturers: string[] }>;
   videoId?: string;
 }) {
   const router = useRouter();
@@ -47,12 +46,24 @@ export function VideoForm({
         })()
       : "",
     isSpecialSeminar: initialData?.isSpecialSeminar ?? false,
-    lecturers: initialData?.lecturers ?? [],
   });
 
+  // lecturers は form の外で管理（form タグ内の input の Enter キーが form を送信してしまうのを防ぐため）
+  const [lecturers, setLecturers] = useState<string[]>(initialData?.lecturers ?? []);
   const [newLecturer, setNewLecturer] = useState("");
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState("");
+
+  function addLecturer() {
+    const val = newLecturer.trim();
+    if (!val) return;
+    setLecturers((prev) => [...prev, val]);
+    setNewLecturer("");
+  }
+
+  function removeLecturer(i: number) {
+    setLecturers((prev) => prev.filter((_, j) => j !== i));
+  }
 
   async function handleSubmit(e: React.FormEvent) {
     e.preventDefault();
@@ -66,7 +77,7 @@ export function VideoForm({
       const res = await fetch(url, {
         method,
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify(form),
+        body: JSON.stringify({ ...form, lecturers }),
       });
 
       if (!res.ok) {
@@ -83,22 +94,14 @@ export function VideoForm({
   }
 
   return (
-    <div className="card p-6">
+    <div className="card p-6 space-y-6">
       {error && (
-        <div className="mb-4 p-3 bg-red-50 border border-red-200 rounded-lg text-sm text-red-700">
+        <div className="p-3 bg-red-50 border border-red-200 rounded-lg text-sm text-red-700">
           {error}
         </div>
       )}
 
-      <form
-        onSubmit={handleSubmit}
-        className="space-y-6"
-        onKeyDown={(e) => {
-          if (e.key === "Enter" && !(e.target instanceof HTMLButtonElement)) {
-            e.preventDefault();
-          }
-        }}
-      >
+      <form onSubmit={handleSubmit} className="space-y-6">
         <div>
           <label className="label">タイトル *</label>
           <input
@@ -233,82 +236,60 @@ export function VideoForm({
           </label>
         </div>
 
-        {/* Special seminar */}
-        <div className="border border-gray-200 rounded-xl p-4 space-y-4">
-          <div className="flex items-center gap-3">
-            <input
-              type="checkbox"
-              id="isSpecialSeminar"
-              checked={form.isSpecialSeminar}
-              onChange={(e) => setForm({ ...form, isSpecialSeminar: e.target.checked })}
-              className="w-4 h-4 rounded border-gray-300 text-purple-600 focus:ring-purple-500"
-            />
-            <label htmlFor="isSpecialSeminar" className="text-sm font-medium text-gray-700">
-              Special seminar として表示する
-            </label>
-          </div>
-
-          {form.isSpecialSeminar && (
-            <div>
-              <label className="label">講師</label>
-              <div className="space-y-2 mb-2">
-                {form.lecturers.map((name, i) => (
-                  <div key={i} className="flex items-center gap-2">
-                    <span className="flex-1 text-sm text-gray-700 bg-gray-50 border border-gray-200 rounded-lg px-3 py-1.5">{name}</span>
-                    <button
-                      type="button"
-                      onClick={() => setForm((prev) => ({ ...prev, lecturers: prev.lecturers.filter((_, j) => j !== i) }))}
-                      className="text-gray-400 hover:text-red-500 transition-colors text-lg leading-none"
-                    >×</button>
-                  </div>
-                ))}
-              </div>
-              <div className="flex gap-2">
-                <input
-                  type="text"
-                  value={newLecturer}
-                  onChange={(e) => setNewLecturer(e.target.value)}
-                  onKeyDown={(e) => {
-                    if (e.key !== "Enter") return;
-                    e.preventDefault();
-                    const val = newLecturer.trim();
-                    if (val) {
-                      setForm((prev) => ({ ...prev, lecturers: [...prev.lecturers, val] }));
-                      setNewLecturer("");
-                    }
-                  }}
-                  className="input flex-1"
-                  placeholder="講師名を入力してEnterまたは追加ボタン"
-                />
-                <button
-                  type="button"
-                  onClick={() => {
-                    const val = newLecturer.trim();
-                    if (val) {
-                      setForm((prev) => ({ ...prev, lecturers: [...prev.lecturers, val] }));
-                      setNewLecturer("");
-                    }
-                  }}
-                  className="btn-secondary text-sm px-3"
-                >追加</button>
-              </div>
-            </div>
-          )}
+        <div className="flex items-center gap-3">
+          <input
+            type="checkbox"
+            id="isSpecialSeminar"
+            checked={form.isSpecialSeminar}
+            onChange={(e) => setForm({ ...form, isSpecialSeminar: e.target.checked })}
+            className="w-4 h-4 rounded border-gray-300 text-purple-600 focus:ring-purple-500"
+          />
+          <label htmlFor="isSpecialSeminar" className="text-sm font-medium text-gray-700">
+            Special seminar として表示する
+          </label>
         </div>
 
         <div className="flex gap-3 pt-2">
           <button type="submit" disabled={isLoading} className="btn-primary">
             {isLoading ? "保存中..." : isEdit ? "更新する" : "追加する"}
           </button>
-          <button
-            type="button"
-            onClick={() => router.back()}
-            className="btn-secondary"
-          >
+          <button type="button" onClick={() => router.back()} className="btn-secondary">
             キャンセル
           </button>
         </div>
       </form>
+
+      {/* 講師セクション：form タグの外に置くことで Enter キーの誤送信を完全に防止 */}
+      {form.isSpecialSeminar && (
+        <div className="border border-gray-200 rounded-xl p-4 space-y-3">
+          <p className="text-sm font-medium text-gray-700">講師</p>
+          <div className="space-y-2">
+            {lecturers.map((name, i) => (
+              <div key={i} className="flex items-center gap-2">
+                <span className="flex-1 text-sm text-gray-700 bg-gray-50 border border-gray-200 rounded-lg px-3 py-1.5">{name}</span>
+                <button
+                  type="button"
+                  onClick={() => removeLecturer(i)}
+                  className="text-gray-400 hover:text-red-500 transition-colors text-lg leading-none"
+                >×</button>
+              </div>
+            ))}
+          </div>
+          <div className="flex gap-2">
+            <input
+              type="text"
+              value={newLecturer}
+              onChange={(e) => setNewLecturer(e.target.value)}
+              onKeyDown={(e) => { if (e.key === "Enter") addLecturer(); }}
+              className="input flex-1"
+              placeholder="講師名を入力してEnterまたは追加ボタン"
+            />
+            <button type="button" onClick={addLecturer} className="btn-secondary text-sm px-3">
+              追加
+            </button>
+          </div>
+        </div>
+      )}
     </div>
   );
 }
