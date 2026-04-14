@@ -1,4 +1,5 @@
 import Link from "next/link";
+import Image from "next/image";
 
 type Video = {
   id: string;
@@ -39,13 +40,12 @@ export function VideoCard({ video }: { video: Video }) {
         {/* サムネイル */}
         <div className="aspect-video bg-gradient-to-br from-blue-800 to-blue-600 relative overflow-hidden">
           {video.thumbnailUrl ? (
-            // eslint-disable-next-line @next/next/no-img-element
-            <img
+            <Image
               src={video.thumbnailUrl}
               alt={video.title}
-              loading="lazy"
-              decoding="async"
-              className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300"
+              fill
+              sizes="(max-width: 640px) 100vw, (max-width: 1024px) 50vw, 33vw"
+              className="object-cover group-hover:scale-105 transition-transform duration-300"
             />
           ) : (
             <div className="w-full h-full flex items-center justify-center">
