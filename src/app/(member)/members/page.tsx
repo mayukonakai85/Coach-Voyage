@@ -2,26 +2,13 @@ import { getServerSession } from "next-auth";
 import { authOptions } from "@/lib/auth";
 import { redirect } from "next/navigation";
 import { Avatar } from "@/components/Avatar";
-import { prisma } from "@/lib/db";
+import { getCachedMembers } from "@/lib/cache";
 
 export default async function MembersPage() {
   const session = await getServerSession(authOptions);
   if (!session) redirect("/login");
 
-  const members = await prisma.user.findMany({
-    where: { OR: [{ isActive: true }, { role: "ADMIN" }] },
-    select: {
-      id: true,
-      name: true,
-      bio: true,
-      avatarUrl: true,
-      role: true,
-      title: true,
-      createdAt: true,
-      _count: { select: { views: true, comments: true } },
-    },
-    orderBy: { createdAt: "asc" },
-  });
+  const members = await getCachedMembers();
 
   return (
     <div>

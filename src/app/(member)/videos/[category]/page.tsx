@@ -26,7 +26,7 @@ export default async function CategoryPage({
 
   const where = memberVideoFilter({ category: cat.name });
 
-  const [total, videos, viewedRecords] = await Promise.all([
+  const [total, videos] = await Promise.all([
     prisma.video.count({ where }),
     prisma.video.findMany({
       where,
@@ -35,15 +35,18 @@ export default async function CategoryPage({
       take: PAGE_SIZE,
       skip: (page - 1) * PAGE_SIZE,
     }),
-    session
-      ? prisma.videoView.findMany({
-          where: { userId: session.user.id },
-          select: { videoId: true },
-        })
-      : [],
   ]);
 
   const totalPages = Math.ceil(total / PAGE_SIZE);
+
+  // 現在ページの動画IDのみに絞って視聴履歴を取得（全件取得を避ける）
+  const videoIds = videos.map((v) => v.id);
+  const viewedRecords = session && videoIds.length > 0
+    ? await prisma.videoView.findMany({
+        where: { userId: session.user.id, videoId: { in: videoIds } },
+        select: { videoId: true },
+      })
+    : [];
   const viewedIds = new Set(viewedRecords.map((v) => v.videoId));
 
   const videosWithMeta = videos.map((v) => ({

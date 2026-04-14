@@ -1,20 +1,7 @@
-"use client";
-
-import { useEffect, useState } from "react";
 import { Avatar } from "@/components/Avatar";
 
+// アバターURLはsessionから取得済みのため追加fetchは不要
+// プロフィール更新時はupdateSession()でsessionが更新されNavigation経由で反映される
 export function NavAvatar({ name, fallbackUrl }: { name: string; fallbackUrl: string | null }) {
-  const [avatarUrl, setAvatarUrl] = useState<string | null>(fallbackUrl);
-
-  useEffect(() => {
-    // 最新のアバターURLをAPIから取得
-    fetch("/api/profile")
-      .then((r) => r.json())
-      .then((data) => {
-        if (data?.avatarUrl) setAvatarUrl(data.avatarUrl);
-      })
-      .catch(() => {});
-  }, []);
-
-  return <Avatar name={name} avatarUrl={avatarUrl} size="sm" />;
+  return <Avatar name={name} avatarUrl={fallbackUrl} size="sm" />;
 }

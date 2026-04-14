@@ -80,7 +80,7 @@ export const getCachedTags = unstable_cache(
 export const getCachedMembers = unstable_cache(
   async () =>
     prisma.user.findMany({
-      where: { isActive: true },
+      where: { OR: [{ isActive: true }, { role: "ADMIN" }] },
       select: {
         id: true,
         name: true,
