@@ -1,5 +1,6 @@
 import { NextRequest, NextResponse } from "next/server";
 import { getServerSession } from "next-auth";
+import { revalidateTag } from "next/cache";
 import { authOptions } from "@/lib/auth";
 import { prisma } from "@/lib/db";
 
@@ -31,6 +32,7 @@ export async function POST(req: NextRequest) {
       data: { avatarUrl: dataUrl },
     });
 
+    revalidateTag("members");
     return NextResponse.json({ avatarUrl: dataUrl });
   } catch (err) {
     console.error("Avatar upload error:", err);

@@ -1,4 +1,5 @@
 import { NextRequest, NextResponse } from "next/server";
+import { revalidateTag } from "next/cache";
 import { prisma } from "@/lib/db";
 
 export async function POST(req: NextRequest) {
@@ -49,6 +50,7 @@ export async function POST(req: NextRequest) {
       where: { email },
       data: { ...formData, ...(nameValue ? { name: nameValue } : {}) },
     });
+    revalidateTag("members");
     return NextResponse.json({ status: "updated", userId: existing.id });
   } else {
     // アカウント未作成の場合：仮登録（isActive: false、password は後で招待時に設定）
@@ -62,6 +64,7 @@ export async function POST(req: NextRequest) {
         ...formData,
       },
     });
+    revalidateTag("members");
     return NextResponse.json({ status: "created", userId: newUser.id });
   }
 }
