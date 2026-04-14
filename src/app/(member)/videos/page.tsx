@@ -34,12 +34,27 @@ export default async function VoyageLibraryPage() {
   return (
     <div>
       {/* ページヘッダー */}
-      <div className="mb-6">
-        <p className="text-sm text-blue-600 font-semibold uppercase tracking-widest mb-1">
-          Member page
-        </p>
-        <h1 className="text-3xl font-bold text-gray-900">Voyage Library</h1>
-        <p className="text-gray-500 mt-1">{session?.user?.name} さん、こんにちは！</p>
+      <div className="mb-6 flex items-end justify-between gap-4">
+        <div>
+          <p className="text-sm text-blue-600 font-semibold uppercase tracking-widest mb-1">
+            Member page
+          </p>
+          <h1 className="text-3xl font-bold text-gray-900">Voyage Library</h1>
+          <p className="text-gray-500 mt-1">{session?.user?.name} さん、こんにちは！</p>
+        </div>
+        <form action="/videos/search" method="get" className="shrink-0">
+          <div className="relative">
+            <svg className="absolute left-2.5 top-1/2 -translate-y-1/2 w-3.5 h-3.5 text-gray-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
+            </svg>
+            <input
+              type="search"
+              name="q"
+              placeholder="動画を検索..."
+              className="pl-8 pr-3 py-1.5 text-sm border border-gray-200 rounded-lg w-40 sm:w-52 focus:outline-none focus:border-blue-400 focus:ring-1 focus:ring-blue-400 bg-gray-50"
+            />
+          </div>
+        </form>
       </div>
 
       <LibraryTabs active="all" />
