@@ -94,7 +94,7 @@ export function VideoForm({
         onSubmit={handleSubmit}
         className="space-y-6"
         onKeyDown={(e) => {
-          if (e.key === "Enter" && e.target instanceof HTMLInputElement) {
+          if (e.key === "Enter" && !(e.target instanceof HTMLButtonElement)) {
             e.preventDefault();
           }
         }}
@@ -269,14 +269,12 @@ export function VideoForm({
                   value={newLecturer}
                   onChange={(e) => setNewLecturer(e.target.value)}
                   onKeyDown={(e) => {
-                    if (e.key === "Enter") {
-                      e.preventDefault();
-                      e.stopPropagation();
-                      const val = newLecturer.trim();
-                      if (val) {
-                        setForm((prev) => ({ ...prev, lecturers: [...prev.lecturers, val] }));
-                        setNewLecturer("");
-                      }
+                    if (e.key !== "Enter") return;
+                    e.preventDefault();
+                    const val = newLecturer.trim();
+                    if (val) {
+                      setForm((prev) => ({ ...prev, lecturers: [...prev.lecturers, val] }));
+                      setNewLecturer("");
                     }
                   }}
                   className="input flex-1"
