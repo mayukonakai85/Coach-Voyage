@@ -1,6 +1,7 @@
 "use client";
 
 import Link from "next/link";
+import Image from "next/image";
 import { useSession, signOut } from "next-auth/react";
 import { usePathname } from "next/navigation";
 import { NavAvatar } from "@/components/NavAvatar";
@@ -26,8 +27,7 @@ export function Navigation() {
         <div className="flex items-center justify-between h-16">
           {/* ロゴ */}
           <Link href="/home" className="flex items-center gap-2 shrink-0">
-            {/* eslint-disable-next-line @next/next/no-img-element */}
-            <img src="/Coach Voyageロゴ.png" alt="Coach Voyage" className="h-7 w-auto object-contain" />
+              <Image src="/Coach Voyageロゴ.png" alt="Coach Voyage" width={112} height={28} className="h-7 w-auto object-contain" priority />
             <span className="font-bold text-gray-900 text-base hidden sm:block">Coach Voyage</span>
           </Link>
 

@@ -19,8 +19,8 @@ export default async function VideoDetailPage({
 }) {
   const session = await getServerSession(authOptions);
 
-  const [video, note, videoLike, videoFavorite, videoWatchLater] = await Promise.all([
-    prisma.video.findFirst({ where: { id: params.id, isPublished: true } }),
+  const [video, note, videoLike, videoFavorite, videoWatchLater, likeCount] = await Promise.all([
+    prisma.video.findFirst({ where: { id: params.id, isPublished: true }, include: { lecturers: { orderBy: { sortOrder: "asc" } } } }),
     session
       ? prisma.note.findUnique({
           where: { userId_videoId: { userId: session.user.id, videoId: params.id } },
@@ -41,11 +41,10 @@ export default async function VideoDetailPage({
           where: { userId_videoId: { userId: session.user.id, videoId: params.id } },
         })
       : null,
+    prisma.like.count({ where: { videoId: params.id } }),
   ]);
 
   if (!video) notFound();
-
-  const likeCount = await prisma.like.count({ where: { videoId: params.id } });
   const signedEmbedUrl = generateBunnySignedEmbedUrl(video.bunnyVideoId);
   const cat = getCategoryByName(video.category);
 

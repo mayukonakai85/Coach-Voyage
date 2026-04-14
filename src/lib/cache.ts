@@ -75,3 +75,24 @@ export const getCachedTags = unstable_cache(
   ["tags"],
   { tags: ["tags"], revalidate: 3600 }
 );
+
+// メンバー一覧（プロフィール更新時にrevalidate）
+export const getCachedMembers = unstable_cache(
+  async () =>
+    prisma.user.findMany({
+      where: { isActive: true },
+      select: {
+        id: true,
+        name: true,
+        bio: true,
+        avatarUrl: true,
+        role: true,
+        title: true,
+        createdAt: true,
+        _count: { select: { views: true, comments: true } },
+      },
+      orderBy: { createdAt: "asc" },
+    }),
+  ["members"],
+  { tags: ["members"], revalidate: 300 }
+);

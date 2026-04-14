@@ -4,6 +4,7 @@ import { Suspense, useState } from "react";
 import { signIn } from "next-auth/react";
 import { useRouter, useSearchParams } from "next/navigation";
 import Link from "next/link";
+import Image from "next/image";
 
 function LoginForm() {
   const router = useRouter();
@@ -103,11 +104,13 @@ export default function LoginPage() {
       <div className="w-full max-w-md">
         {/* ロゴ・タイトル */}
         <div className="text-center mb-8">
-          {/* eslint-disable-next-line @next/next/no-img-element */}
-          <img
+          <Image
             src="/logo-withe.png"
             alt="Coach Voyage"
+            width={200}
+            height={56}
             className="h-14 w-auto mx-auto mb-4"
+            priority
           />
           <h1 className="text-3xl font-bold text-white">Coach Voyage</h1>
           <p className="text-blue-200 mt-1 text-sm">メンバーページ</p>
