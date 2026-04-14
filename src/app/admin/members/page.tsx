@@ -11,7 +11,7 @@ export default async function AdminMembersPage() {
   const statusOrder: Record<string, number> = { PENDING: 0, ACTIVE: 1, INACTIVE: 2 };
   const members = (await prisma.user.findMany({
     where: { role: { in: ["MEMBER", "ADMIN"] } },
-    orderBy: { createdAt: "asc" },
+    orderBy: { createdAt: "desc" },
     select: {
       id: true, name: true, email: true, role: true, title: true,
       isActive: true, memberStatus: true, createdAt: true, invitedAt: true, joinedMonth: true, lastLoginAt: true,
@@ -19,7 +19,9 @@ export default async function AdminMembersPage() {
   })).sort((a, b) => {
     if (a.role === "ADMIN" && b.role !== "ADMIN") return -1;
     if (a.role !== "ADMIN" && b.role === "ADMIN") return 1;
-    return (statusOrder[a.memberStatus] ?? 1) - (statusOrder[b.memberStatus] ?? 1);
+    const statusDiff = (statusOrder[a.memberStatus] ?? 1) - (statusOrder[b.memberStatus] ?? 1);
+    if (statusDiff !== 0) return statusDiff;
+    return new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime();
   });
 
   return (
