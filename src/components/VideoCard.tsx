@@ -9,6 +9,8 @@ type Video = {
   recordedAt?: string | Date | null;
   sortOrder?: number;
   isViewed?: boolean;
+  isSpecialSeminar?: boolean;
+  lecturers?: { name: string }[];
 };
 
 export function VideoCard({ video }: { video: Video }) {
@@ -70,6 +72,13 @@ export function VideoCard({ video }: { video: Video }) {
             </div>
           )}
 
+          {/* Special seminar バッジ */}
+          {video.isSpecialSeminar && (
+            <div className="absolute top-2 left-2 bg-purple-600/90 text-white text-xs font-semibold px-2 py-0.5 rounded-full tracking-wide">
+              Special seminar
+            </div>
+          )}
+
           {/* NEWバッジ */}
           {isNew && (
             <div className="absolute top-2 right-2 bg-red-500 text-white text-xs font-black px-2 py-0.5 rounded-full">
@@ -99,9 +108,16 @@ export function VideoCard({ video }: { video: Video }) {
 
         {/* コンテンツ */}
         <div className="p-5">
-          <h3 className="font-semibold text-gray-900 text-base leading-snug mb-3 group-hover:text-blue-700 transition-colors line-clamp-2">
+          <h3 className="font-semibold text-gray-900 text-base leading-snug mb-2 group-hover:text-blue-700 transition-colors line-clamp-2">
             {video.title}
           </h3>
+
+          {/* 講師 */}
+          {video.lecturers && video.lecturers.length > 0 && (
+            <p className="text-xs text-purple-600 font-medium mb-2">
+              {video.lecturers.map((l) => l.name).join(" / ")}
+            </p>
+          )}
 
           {/* 日付情報 */}
           <div className="space-y-1">

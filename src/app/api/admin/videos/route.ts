@@ -35,7 +35,7 @@ export async function POST(req: NextRequest) {
 
   try {
     const body = await req.json();
-    const { title, description, bunnyVideoId, thumbnailUrl, category, sortOrder, publishedAt, isPublished, schedulePublishAt } = body;
+    const { title, description, bunnyVideoId, thumbnailUrl, category, sortOrder, publishedAt, isPublished, schedulePublishAt, isSpecialSeminar, lecturers } = body;
 
     if (!title || !bunnyVideoId) {
       return NextResponse.json(
@@ -55,6 +55,10 @@ export async function POST(req: NextRequest) {
         publishedAt: publishedAt ? new Date(publishedAt) : new Date(),
         isPublished: isPublished ?? true,
         schedulePublishAt: schedulePublishAt ? new Date(schedulePublishAt + ":00:00+09:00") : null,
+        isSpecialSeminar: isSpecialSeminar ?? false,
+        lecturers: Array.isArray(lecturers) && lecturers.length > 0
+          ? { create: lecturers.map((name: string, i: number) => ({ name, sortOrder: i })) }
+          : undefined,
       },
     });
 

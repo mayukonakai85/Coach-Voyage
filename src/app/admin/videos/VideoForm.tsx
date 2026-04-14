@@ -14,6 +14,8 @@ type VideoFormData = {
   publishedAt: string;
   isPublished: boolean;
   schedulePublishAt: string;
+  isSpecialSeminar: boolean;
+  lecturers: string[];
 };
 
 export function VideoForm({
@@ -44,8 +46,11 @@ export function VideoForm({
           return `${d.getFullYear()}-${pad(d.getMonth()+1)}-${pad(d.getDate())}T${pad(d.getHours())}`;
         })()
       : "",
+    isSpecialSeminar: initialData?.isSpecialSeminar ?? false,
+    lecturers: initialData?.lecturers ?? [],
   });
 
+  const [newLecturer, setNewLecturer] = useState("");
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState("");
 
@@ -218,6 +223,68 @@ export function VideoForm({
           <label htmlFor="isPublished" className="text-sm font-medium text-gray-700">
             公開する（チェックを外すと会員には表示されません）
           </label>
+        </div>
+
+        {/* Special seminar */}
+        <div className="border border-gray-200 rounded-xl p-4 space-y-4">
+          <div className="flex items-center gap-3">
+            <input
+              type="checkbox"
+              id="isSpecialSeminar"
+              checked={form.isSpecialSeminar}
+              onChange={(e) => setForm({ ...form, isSpecialSeminar: e.target.checked })}
+              className="w-4 h-4 rounded border-gray-300 text-purple-600 focus:ring-purple-500"
+            />
+            <label htmlFor="isSpecialSeminar" className="text-sm font-medium text-gray-700">
+              Special seminar として表示する
+            </label>
+          </div>
+
+          {form.isSpecialSeminar && (
+            <div>
+              <label className="label">講師</label>
+              <div className="space-y-2 mb-2">
+                {form.lecturers.map((name, i) => (
+                  <div key={i} className="flex items-center gap-2">
+                    <span className="flex-1 text-sm text-gray-700 bg-gray-50 border border-gray-200 rounded-lg px-3 py-1.5">{name}</span>
+                    <button
+                      type="button"
+                      onClick={() => setForm({ ...form, lecturers: form.lecturers.filter((_, j) => j !== i) })}
+                      className="text-gray-400 hover:text-red-500 transition-colors text-lg leading-none"
+                    >×</button>
+                  </div>
+                ))}
+              </div>
+              <div className="flex gap-2">
+                <input
+                  type="text"
+                  value={newLecturer}
+                  onChange={(e) => setNewLecturer(e.target.value)}
+                  onKeyDown={(e) => {
+                    if (e.key === "Enter") {
+                      e.preventDefault();
+                      if (newLecturer.trim()) {
+                        setForm({ ...form, lecturers: [...form.lecturers, newLecturer.trim()] });
+                        setNewLecturer("");
+                      }
+                    }
+                  }}
+                  className="input flex-1"
+                  placeholder="講師名を入力"
+                />
+                <button
+                  type="button"
+                  onClick={() => {
+                    if (newLecturer.trim()) {
+                      setForm({ ...form, lecturers: [...form.lecturers, newLecturer.trim()] });
+                      setNewLecturer("");
+                    }
+                  }}
+                  className="btn-secondary text-sm px-3"
+                >追加</button>
+              </div>
+            </div>
+          )}
         </div>
 
         <div className="flex gap-3 pt-2">

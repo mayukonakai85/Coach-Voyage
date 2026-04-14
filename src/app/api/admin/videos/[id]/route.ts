@@ -22,7 +22,7 @@ export async function PUT(
 
   try {
     const body = await req.json();
-    const { title, description, bunnyVideoId, thumbnailUrl, category, sortOrder, publishedAt, isPublished, schedulePublishAt } = body;
+    const { title, description, bunnyVideoId, thumbnailUrl, category, sortOrder, publishedAt, isPublished, schedulePublishAt, isSpecialSeminar, lecturers } = body;
 
     if (!title || !bunnyVideoId) {
       return NextResponse.json(
@@ -30,6 +30,9 @@ export async function PUT(
         { status: 400 }
       );
     }
+
+    // 講師を洗い替え
+    await prisma.videoLecturer.deleteMany({ where: { videoId: params.id } });
 
     const video = await prisma.video.update({
       where: { id: params.id },
@@ -43,6 +46,10 @@ export async function PUT(
         publishedAt: publishedAt ? new Date(publishedAt) : undefined,
         isPublished: isPublished ?? true,
         schedulePublishAt: schedulePublishAt ? new Date(schedulePublishAt + ":00:00+09:00") : null,
+        isSpecialSeminar: isSpecialSeminar ?? false,
+        lecturers: Array.isArray(lecturers) && lecturers.length > 0
+          ? { create: lecturers.map((name: string, i: number) => ({ name, sortOrder: i })) }
+          : undefined,
       },
     });
 

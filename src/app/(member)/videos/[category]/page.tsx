@@ -22,6 +22,7 @@ export default async function CategoryPage({
     prisma.video.findMany({
       where: memberVideoFilter({ category: cat.name }),
       orderBy: { sortOrder: "desc" },
+      include: { lecturers: { orderBy: { sortOrder: "asc" } } },
     }),
     // ログインユーザーの視聴済み動画IDを取得
     session

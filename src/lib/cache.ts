@@ -19,7 +19,10 @@ export const getCachedTopVideos = unstable_cache(
   async () =>
     prisma.video.findMany({
       where: memberVideoFilter(),
-      include: { _count: { select: { views: true } } },
+      include: {
+        _count: { select: { views: true } },
+        lecturers: { orderBy: { sortOrder: "asc" } },
+      },
       orderBy: { views: { _count: "desc" } },
       take: 3,
     }),

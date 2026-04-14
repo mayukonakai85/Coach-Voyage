@@ -77,6 +77,7 @@ model Video {
   publishedAt  DateTime @default(now()) // Bunny.netへのアップロード日
   isPublished        Boolean   @default(true)
   schedulePublishAt  DateTime? // 予約公開日時。設定した日時になったら自動公開
+  isSpecialSeminar   Boolean   @default(false) // Special seminarバッジ表示
   createdAt    DateTime @default(now())
   updatedAt    DateTime @updatedAt
   views        VideoView[]
@@ -85,6 +86,17 @@ model Video {
   likes        Like[]
   favorites    Favorite[]
   watchLaters  WatchLater[]
+  lecturers    VideoLecturer[]
+}
+
+// 動画の講師
+model VideoLecturer {
+  id        String   @id @default(cuid())
+  videoId   String
+  video     Video    @relation(fields: [videoId], references: [id], onDelete: Cascade)
+  name      String
+  sortOrder Int      @default(0)
+  createdAt DateTime @default(now())
 }
 
 // 学習ノート（動画ごとの個人メモ）

@@ -9,6 +9,7 @@ export default async function EditVideoPage({
 }) {
   const video = await prisma.video.findUnique({
     where: { id: params.id },
+    include: { lecturers: { orderBy: { sortOrder: "asc" } } },
   });
 
   if (!video) notFound();
@@ -30,6 +31,8 @@ export default async function EditVideoPage({
           sortOrder: video.sortOrder,
           publishedAt: video.publishedAt.toISOString(),
           isPublished: video.isPublished,
+          isSpecialSeminar: video.isSpecialSeminar,
+          lecturers: video.lecturers.map((l) => l.name),
         }}
       />
     </div>
