@@ -60,6 +60,23 @@ export function Navigation() {
             )}
           </nav>
 
+          {/* 動画検索バー（videos配下のみ表示） */}
+          {pathname.startsWith("/videos") && (
+            <form action="/videos/search" method="get" className="hidden md:block">
+              <div className="relative">
+                <svg className="absolute left-2.5 top-1/2 -translate-y-1/2 w-3.5 h-3.5 text-gray-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
+                </svg>
+                <input
+                  type="search"
+                  name="q"
+                  placeholder="動画を検索..."
+                  className="pl-8 pr-3 py-1.5 text-sm border border-gray-200 rounded-lg w-44 focus:outline-none focus:border-blue-400 focus:ring-1 focus:ring-blue-400 focus:w-56 transition-all bg-gray-50"
+                />
+              </div>
+            </form>
+          )}
+
           {/* ユーザーメニュー */}
           <div className="flex items-center gap-2">
             <NotificationBell />
@@ -78,6 +95,25 @@ export function Navigation() {
             </button>
           </div>
         </div>
+
+        {/* モバイル検索バー（videos配下のみ） */}
+        {pathname.startsWith("/videos") && (
+          <div className="md:hidden pb-2 px-1">
+            <form action="/videos/search" method="get">
+              <div className="relative">
+                <svg className="absolute left-2.5 top-1/2 -translate-y-1/2 w-3.5 h-3.5 text-gray-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
+                </svg>
+                <input
+                  type="search"
+                  name="q"
+                  placeholder="動画を検索..."
+                  className="w-full pl-8 pr-3 py-1.5 text-sm border border-gray-200 rounded-lg focus:outline-none focus:border-blue-400 bg-gray-50"
+                />
+              </div>
+            </form>
+          </div>
+        )}
 
         {/* モバイルナビ */}
         <div className="md:hidden pb-3 flex gap-1 overflow-x-auto">
