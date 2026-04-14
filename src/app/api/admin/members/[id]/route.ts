@@ -1,5 +1,6 @@
 import { NextRequest, NextResponse } from "next/server";
 import { getServerSession } from "next-auth";
+import { revalidateTag } from "next/cache";
 import { authOptions } from "@/lib/auth";
 import { prisma } from "@/lib/db";
 
@@ -45,6 +46,7 @@ export async function PATCH(
       select: { id: true, email: true, name: true, isActive: true, role: true, title: true, joinedMonth: true },
     });
 
+    revalidateTag("members");
     return NextResponse.json(member);
   } catch (error) {
     console.error("Member update error:", error);

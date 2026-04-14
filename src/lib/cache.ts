@@ -94,5 +94,5 @@ export const getCachedMembers = unstable_cache(
       orderBy: { createdAt: "asc" },
     }),
   ["members"],
-  { tags: ["members"], revalidate: 300 }
+  { tags: ["members"], revalidate: 60 }
 );
