@@ -106,7 +106,7 @@ export async function sendPaymentEmail({ to, name }: { to: string; name: string 
         <p style="color: #1e40af; font-size: 14px; font-weight: bold; margin: 0 0 12px;">▼こちらより、月会費お支払いの手続きをお願いします。</p>
         <p style="color: #3b82f6; font-size: 12px; margin: 0 0 16px;">（英語の画面が開きますが、下部の∨マークを押すと日本語に切り替えられます）</p>
         <div style="text-align: center;">
-          <a href="https://www.paypal.com/webapps/hermes?token=2HK631454U230504W&useraction=commit"
+          <a href="https://www.paypal.com/webapps/hermes?token=71X2022330297530K&useraction=commit"
             style="display: inline-block; background: #1d4ed8; color: white; text-decoration: none; font-weight: bold; font-size: 14px; padding: 14px 32px; border-radius: 8px;">
             Coach Voyage 月会費決済リンクはこちら →
           </a>
