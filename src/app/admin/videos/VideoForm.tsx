@@ -249,7 +249,7 @@ export function VideoForm({
                     <span className="flex-1 text-sm text-gray-700 bg-gray-50 border border-gray-200 rounded-lg px-3 py-1.5">{name}</span>
                     <button
                       type="button"
-                      onClick={() => setForm({ ...form, lecturers: form.lecturers.filter((_, j) => j !== i) })}
+                      onClick={() => setForm((prev) => ({ ...prev, lecturers: prev.lecturers.filter((_, j) => j !== i) }))}
                       className="text-gray-400 hover:text-red-500 transition-colors text-lg leading-none"
                     >×</button>
                   </div>
@@ -263,20 +263,23 @@ export function VideoForm({
                   onKeyDown={(e) => {
                     if (e.key === "Enter") {
                       e.preventDefault();
-                      if (newLecturer.trim()) {
-                        setForm({ ...form, lecturers: [...form.lecturers, newLecturer.trim()] });
+                      e.stopPropagation();
+                      const val = newLecturer.trim();
+                      if (val) {
+                        setForm((prev) => ({ ...prev, lecturers: [...prev.lecturers, val] }));
                         setNewLecturer("");
                       }
                     }
                   }}
                   className="input flex-1"
-                  placeholder="講師名を入力"
+                  placeholder="講師名を入力してEnterまたは追加ボタン"
                 />
                 <button
                   type="button"
                   onClick={() => {
-                    if (newLecturer.trim()) {
-                      setForm({ ...form, lecturers: [...form.lecturers, newLecturer.trim()] });
+                    const val = newLecturer.trim();
+                    if (val) {
+                      setForm((prev) => ({ ...prev, lecturers: [...prev.lecturers, val] }));
                       setNewLecturer("");
                     }
                   }}
