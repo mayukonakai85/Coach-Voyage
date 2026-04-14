@@ -1,45 +1,59 @@
-import { notFound } from "next/navigation";
-import Link from "next/link";
 import { getServerSession } from "next-auth";
 import { authOptions } from "@/lib/auth";
 import { prisma } from "@/lib/db";
-import { getCategoryBySlug } from "@/lib/categories";
 import { memberVideoFilter } from "@/lib/videoFilter";
 import { VideoCard } from "@/components/VideoCard";
 import { Pagination } from "@/components/Pagination";
+import Link from "next/link";
 
 const PAGE_SIZE = 30;
 
-export default async function CategoryPage({
-  params,
+export default async function VideoSearchPage({
   searchParams,
 }: {
-  params: { category: string };
-  searchParams: { page?: string };
+  searchParams: { q?: string; page?: string };
 }) {
-  const cat = getCategoryBySlug(params.category);
-  if (!cat) notFound();
-
+  const q = (searchParams.q ?? "").trim();
   const page = Math.max(1, Number(searchParams.page ?? 1));
   const session = await getServerSession(authOptions);
   const cdnHost = process.env.BUNNY_CDN_HOSTNAME;
 
-  const where = memberVideoFilter({ category: cat.name });
+  if (!q) {
+    return (
+      <div>
+        <nav className="flex items-center gap-2 text-sm text-gray-400 mb-6">
+          <Link href="/videos" className="hover:text-blue-600">Voyage Library</Link>
+          <span>/</span>
+          <span className="text-gray-700 font-medium">検索</span>
+        </nav>
+        <p className="text-gray-400 text-center py-16">検索キーワードを入力してください</p>
+      </div>
+    );
+  }
+
+  const where = {
+    AND: [
+      memberVideoFilter(),
+      {
+        OR: [
+          { title: { contains: q, mode: "insensitive" as const } },
+          { description: { contains: q, mode: "insensitive" as const } },
+        ],
+      },
+    ],
+  };
 
   const [total, videos, viewedRecords] = await Promise.all([
     prisma.video.count({ where }),
     prisma.video.findMany({
       where,
-      orderBy: { sortOrder: "desc" },
+      orderBy: { publishedAt: "desc" },
       include: { lecturers: { orderBy: { sortOrder: "asc" } } },
       take: PAGE_SIZE,
       skip: (page - 1) * PAGE_SIZE,
     }),
     session
-      ? prisma.videoView.findMany({
-          where: { userId: session.user.id },
-          select: { videoId: true },
-        })
+      ? prisma.videoView.findMany({ where: { userId: session.user.id }, select: { videoId: true } })
       : [],
   ]);
 
@@ -48,39 +62,26 @@ export default async function CategoryPage({
 
   const videosWithMeta = videos.map((v) => ({
     ...v,
-    thumbnailUrl:
-      v.thumbnailUrl ||
-      (cdnHost ? `https://${cdnHost}/${v.bunnyVideoId}/thumbnail.jpg` : null),
+    thumbnailUrl: v.thumbnailUrl || (cdnHost ? `https://${cdnHost}/${v.bunnyVideoId}/thumbnail.jpg` : null),
     isViewed: viewedIds.has(v.id),
   }));
 
   return (
     <div>
-      {/* パンくず */}
       <nav className="flex items-center gap-2 text-sm text-gray-400 mb-6">
-        <Link href="/videos" className="hover:text-blue-600 transition-colors">
-          Voyage Library
-        </Link>
-        <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />
-        </svg>
-        <span className="text-gray-700 font-medium">{cat.name}</span>
+        <Link href="/videos" className="hover:text-blue-600 transition-colors">Voyage Library</Link>
+        <span>/</span>
+        <span className="text-gray-700 font-medium">「{q}」の検索結果</span>
       </nav>
 
-      {/* ヘッダー */}
-      <div className="mb-8">
-        <div className="flex items-center gap-3 mb-1">
-          <span className="text-3xl">{cat.icon}</span>
-          <h1 className="text-2xl font-bold text-gray-900">{cat.name}</h1>
-        </div>
-        <p className="text-gray-500 text-sm">{cat.description}</p>
-        <p className="text-sm text-blue-600 font-medium mt-1">{total}本</p>
+      <div className="mb-6">
+        <h1 className="text-xl font-bold text-gray-900">「{q}」の検索結果</h1>
+        <p className="text-sm text-gray-500 mt-1">{total}件ヒット</p>
       </div>
 
-      {/* 動画グリッド */}
       {videos.length === 0 ? (
         <div className="card p-16 text-center text-gray-400">
-          <p className="font-medium">このカテゴリにはまだ動画がありません</p>
+          <p className="font-medium">「{q}」に一致する動画が見つかりませんでした</p>
           <Link href="/videos" className="text-blue-600 text-sm mt-2 inline-block hover:underline">
             ← Voyage Library に戻る
           </Link>
@@ -95,7 +96,7 @@ export default async function CategoryPage({
           <Pagination
             currentPage={page}
             totalPages={totalPages}
-            makeHref={(p) => `/videos/${params.category}?page=${p}`}
+            makeHref={(p) => `/videos/search?q=${encodeURIComponent(q)}&page=${p}`}
           />
         </>
       )}
