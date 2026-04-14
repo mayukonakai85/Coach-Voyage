@@ -74,8 +74,8 @@ export function VideoCard({ video }: { video: Video }) {
 
           {/* Special seminar バッジ */}
           {video.isSpecialSeminar && (
-            <div className="absolute top-2 left-2 bg-purple-600/90 text-white text-xs font-semibold px-2 py-0.5 rounded-full tracking-wide">
-              Special seminar
+            <div className="absolute bottom-0 left-0 right-0 bg-gradient-to-r from-indigo-600 to-purple-600 text-white text-xs font-semibold px-3 py-1 text-center tracking-widest uppercase">
+              Special Seminar
             </div>
           )}
 
@@ -114,9 +114,14 @@ export function VideoCard({ video }: { video: Video }) {
 
           {/* 講師 */}
           {video.lecturers && video.lecturers.length > 0 && (
-            <p className="text-xs text-purple-600 font-medium mb-2">
-              {video.lecturers.map((l) => l.name).join(" / ")}
-            </p>
+            <div className="flex items-center gap-1.5 mb-2">
+              <svg className="w-3.5 h-3.5 shrink-0 text-gray-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z" />
+              </svg>
+              <p className="text-xs text-gray-500">
+                {video.lecturers.map((l) => l.name).join(" / ")}
+              </p>
+            </div>
           )}
 
           {/* 日付情報 */}
