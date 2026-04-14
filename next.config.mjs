@@ -9,11 +9,7 @@ const nextConfig = {
       },
       {
         protocol: "https",
-        hostname: "thumbnail.bunnycdn.com",
-      },
-      {
-        protocol: "https",
-        hostname: "vz-*.b-cdn.net",
+        hostname: "**.bunnycdn.com",
       },
     ],
   },
