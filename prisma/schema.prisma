@@ -53,6 +53,10 @@ model User {
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
 
+  @@index([role])
+  @@index([memberStatus])
+  @@index([isActive])
+
   // フェーズ2: セミナー予約との関連
   // registrations Registration[]
   views         VideoView[]
@@ -87,6 +91,10 @@ model Video {
   favorites    Favorite[]
   watchLaters  WatchLater[]
   lecturers    VideoLecturer[]
+
+  @@index([category])
+  @@index([isPublished])
+  @@index([isPublished, schedulePublishAt]) // memberVideoFilter の複合条件
 }
 
 // 動画の講師

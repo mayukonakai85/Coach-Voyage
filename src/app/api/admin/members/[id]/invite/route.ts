@@ -20,26 +20,26 @@ export async function POST(
   const token = randomBytes(32).toString("hex");
   const expires = new Date(Date.now() + 7 * 24 * 60 * 60 * 1000); // 7日間有効
 
+  // トークン発行とinvitedAt記録を1回のDBアクセスで行う
   await prisma.user.update({
     where: { id: params.id },
-    data: { passwordResetToken: token, passwordResetExpires: expires },
+    data: { passwordResetToken: token, passwordResetExpires: expires, invitedAt: new Date() },
   });
 
   try {
     await sendWelcomeEmail({ to: user.email, name: user.name, token });
   } catch (err) {
     console.error("Invite email error:", err);
+    // メール失敗時はトークンを無効化
+    await prisma.user.update({
+      where: { id: params.id },
+      data: { passwordResetToken: null, passwordResetExpires: null, invitedAt: null },
+    });
     return NextResponse.json(
       { error: `メール送信に失敗しました: ${err instanceof Error ? err.message : String(err)}` },
       { status: 500 }
     );
   }
-
-  // 招待日時を記録
-  await prisma.user.update({
-    where: { id: params.id },
-    data: { invitedAt: new Date() },
-  });
 
   return NextResponse.json({ success: true });
 }
