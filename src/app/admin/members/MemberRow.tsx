@@ -40,6 +40,7 @@ export function MemberRow({ member, currentUserId }: { member: Member; currentUs
   const [joinedMonth, setJoinedMonth] = useState(member.joinedMonth ?? "");
   const [editingMonth, setEditingMonth] = useState(false);
   const [saving, setSaving] = useState(false);
+  const [sendingPayment, setSendingPayment] = useState(false);
 
   async function patch(data: Record<string, unknown>) {
     setSaving(true);
@@ -159,7 +160,25 @@ export function MemberRow({ member, currentUserId }: { member: Member; currentUs
 
       {/* 招待 */}
       <td className="px-3 py-3">
-        <div className="flex justify-end">
+        <div className="flex flex-col items-end gap-1.5">
+          <button
+            onClick={async () => {
+              if (!confirm(`${member.name} さんに決済メールを送信しますか？`)) return;
+              setSendingPayment(true);
+              try {
+                const res = await fetch(`/api/admin/members/${member.id}/payment-email`, { method: "POST" });
+                const d = await res.json();
+                if (!res.ok) alert(d.error ?? "送信に失敗しました");
+                else alert("決済メールを送信しました");
+              } finally {
+                setSendingPayment(false);
+              }
+            }}
+            disabled={sendingPayment}
+            className="text-xs font-medium text-emerald-700 bg-emerald-50 hover:bg-emerald-100 border border-emerald-200 px-2.5 py-1 rounded-lg transition-colors disabled:opacity-50 whitespace-nowrap"
+          >
+            {sendingPayment ? "送信中..." : "決済メール"}
+          </button>
           <InviteButton memberId={member.id} memberName={member.name} memberEmail={member.email} invitedAt={member.invitedAt} />
         </div>
       </td>
