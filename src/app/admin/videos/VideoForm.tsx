@@ -48,21 +48,19 @@ export function VideoForm({
     isSpecialSeminar: initialData?.isSpecialSeminar ?? false,
   });
 
-  // lecturers は form の外で管理（form タグ内の input の Enter キーが form を送信してしまうのを防ぐため）
-  const [lecturers, setLecturers] = useState<string[]>(initialData?.lecturers ?? []);
-  const [newLecturer, setNewLecturer] = useState("");
+  // lecturers は form の外で管理
+  const [lecturers, setLecturers] = useState<string[]>(
+    initialData?.lecturers?.length ? initialData.lecturers : []
+  );
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState("");
 
-  function addLecturer() {
-    const val = newLecturer.trim();
-    if (!val) return;
-    setLecturers((prev) => [...prev, val]);
-    setNewLecturer("");
-  }
-
   function removeLecturer(i: number) {
     setLecturers((prev) => prev.filter((_, j) => j !== i));
+  }
+
+  function updateLecturer(i: number, val: string) {
+    setLecturers((prev) => prev.map((v, j) => (j === i ? val : v)));
   }
 
   async function handleSubmit(e: React.FormEvent) {
@@ -77,7 +75,7 @@ export function VideoForm({
       const res = await fetch(url, {
         method,
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ ...form, lecturers }),
+        body: JSON.stringify({ ...form, lecturers: lecturers.filter((v) => v.trim()) }),
       });
 
       if (!res.ok) {
@@ -259,35 +257,35 @@ export function VideoForm({
         </div>
       </form>
 
-      {/* 講師セクション：form タグの外に置くことで Enter キーの誤送信を完全に防止 */}
+      {/* 講師セクション：form タグの外 */}
       {form.isSpecialSeminar && (
         <div className="border border-gray-200 rounded-xl p-4 space-y-3">
           <p className="text-sm font-medium text-gray-700">講師</p>
           <div className="space-y-2">
             {lecturers.map((name, i) => (
               <div key={i} className="flex items-center gap-2">
-                <span className="flex-1 text-sm text-gray-700 bg-gray-50 border border-gray-200 rounded-lg px-3 py-1.5">{name}</span>
+                <input
+                  type="text"
+                  value={name}
+                  onChange={(e) => updateLecturer(i, e.target.value)}
+                  className="input flex-1"
+                  placeholder={`講師 ${i + 1}`}
+                />
                 <button
                   type="button"
                   onClick={() => removeLecturer(i)}
-                  className="text-gray-400 hover:text-red-500 transition-colors text-lg leading-none"
+                  className="shrink-0 text-gray-400 hover:text-red-500 transition-colors text-lg leading-none px-1"
                 >×</button>
               </div>
             ))}
           </div>
-          <div className="flex gap-2">
-            <input
-              type="text"
-              value={newLecturer}
-              onChange={(e) => setNewLecturer(e.target.value)}
-              onKeyDown={(e) => { if (e.key === "Enter") addLecturer(); }}
-              className="input flex-1"
-              placeholder="講師名を入力してEnterまたは追加ボタン"
-            />
-            <button type="button" onClick={addLecturer} className="btn-secondary text-sm px-3">
-              追加
-            </button>
-          </div>
+          <button
+            type="button"
+            onClick={() => setLecturers((prev) => [...prev, ""])}
+            className="text-sm text-blue-600 hover:text-blue-800 font-medium"
+          >
+            ＋ 講師を追加
+          </button>
         </div>
       )}
     </div>
