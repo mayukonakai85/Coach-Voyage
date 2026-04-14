@@ -1,10 +1,16 @@
 "use client";
 
 import { useState } from "react";
+import React from "react";
 
-const steps = [
+const SPREADSHEET_URL = "https://docs.google.com/spreadsheets/d/1hFsCEnIntj7Y9R1WmI1fkeugDvLcCSp1XI8n9zrWcv4/edit?resourcekey=&gid=1585513496#gid=1585513496";
+
+const steps: (string | React.ReactNode)[] = [
   "フォームより登録",
-  "登録内容を確認し、決済案内を送付",
+  <>
+    <a href={SPREADSHEET_URL} target="_blank" rel="noopener noreferrer" className="text-blue-600 hover:underline">登録内容</a>
+    を確認し、決済案内を送付
+  </>,
   "決済の確認が取れ次第、招待メールを送付",
   "グループLINEとFacebookに招待",
 ];
