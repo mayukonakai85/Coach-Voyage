@@ -30,10 +30,10 @@ export async function PATCH(
 
     const updateData: Record<string, unknown> = {};
     if (typeof isActive === "boolean") updateData.isActive = isActive;
-    // memberStatus変更時はisActiveも連動
+    // memberStatus変更時の連動：INACTIVEのみisActive=false、それ以外はtrue
     if (memberStatus === "ACTIVE" || memberStatus === "INACTIVE" || memberStatus === "PENDING") {
       updateData.memberStatus = memberStatus;
-      updateData.isActive = memberStatus === "ACTIVE";
+      updateData.isActive = memberStatus !== "INACTIVE";
     }
     if (role === "ADMIN" || role === "MEMBER") updateData.role = role;
     if (title !== undefined) updateData.title = title?.trim() || null;

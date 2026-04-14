@@ -9,8 +9,9 @@ export async function POST(req: NextRequest) {
 
   const user = await prisma.user.findUnique({ where: { email } });
 
-  // ユーザーが存在しない場合も同じレスポンスを返す（セキュリティ）
-  if (!user || !user.isActive) {
+  // ユーザーが存在しない場合、または退会済みの場合は送らない（セキュリティ）
+  // PENDING（未設定）ユーザーはリセット可能にする
+  if (!user || user.memberStatus === "INACTIVE") {
     return NextResponse.json({ success: true });
   }
 

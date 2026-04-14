@@ -28,6 +28,9 @@ export async function POST(req: NextRequest) {
       password: hashedPassword,
       passwordResetToken: null,
       passwordResetExpires: null,
+      // パスワード設定完了 → 会員を有効化
+      isActive: true,
+      memberStatus: user.memberStatus === "PENDING" ? "ACTIVE" : user.memberStatus,
     },
   });
 
