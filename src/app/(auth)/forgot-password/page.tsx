@@ -7,16 +7,23 @@ export default function ForgotPasswordPage() {
   const [email, setEmail] = useState("");
   const [sent, setSent] = useState(false);
   const [loading, setLoading] = useState(false);
+  const [error, setError] = useState("");
 
   async function handleSubmit(e: React.FormEvent) {
     e.preventDefault();
     setLoading(true);
-    await fetch("/api/auth/forgot-password", {
+    setError("");
+    const res = await fetch("/api/auth/forgot-password", {
       method: "POST",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify({ email }),
     });
     setLoading(false);
+    if (!res.ok) {
+      const data = await res.json();
+      setError(data.error ?? "エラーが発生しました。再度お試しください。");
+      return;
+    }
     setSent(true);
   }
 
@@ -48,6 +55,11 @@ export default function ForgotPasswordPage() {
             <>
               <h2 className="text-lg font-bold text-gray-800 mb-2">パスワードをリセット</h2>
               <p className="text-sm text-gray-500 mb-6">登録済みのメールアドレスを入力してください。リセット用のリンクを送信します。</p>
+              {error && (
+                <div className="p-3 bg-red-50 border border-red-200 rounded-lg text-sm text-red-700 mb-4">
+                  {error}
+                </div>
+              )}
               <form onSubmit={handleSubmit} className="space-y-4">
                 <div>
                   <label className="label">メールアドレス</label>

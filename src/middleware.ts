@@ -21,5 +21,5 @@ export default withAuth(
 
 export const config = {
   // 認証が必要なルートを指定
-  matcher: ["/home", "/videos/:path*", "/admin/:path*", "/profile", "/members"],
+  matcher: ["/home", "/videos/:path*", "/admin/:path*", "/profile", "/members", "/notes", "/favorites", "/watch-later"],
 };

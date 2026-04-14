@@ -27,6 +27,12 @@ export async function POST(req: NextRequest) {
     await sendPasswordResetEmail({ to: user.email, name: user.name, token });
   } catch (err) {
     console.error("Password reset email error:", err);
+    // メール失敗時はトークンを無効化し、クライアントにエラーを返す
+    await prisma.user.update({
+      where: { id: user.id },
+      data: { passwordResetToken: null, passwordResetExpires: null },
+    });
+    return NextResponse.json({ error: "メール送信に失敗しました。しばらく経ってから再度お試しください。" }, { status: 500 });
   }
 
   return NextResponse.json({ success: true });
