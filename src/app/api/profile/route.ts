@@ -50,10 +50,13 @@ export async function PUT(req: NextRequest) {
 
   const updateData: Record<string, unknown> = {
     name: name.trim(),
-    bio: bio?.trim() || null,
     learningSince: learningSince?.trim() || null,
     contentRequest: newContentRequest,
   };
+  // bioは明示的に送信された場合のみ更新（パスワード変更など他の操作でbioを消さないため）
+  if (bio !== undefined) {
+    updateData.bio = bio?.trim() || null;
+  }
 
   // メール変更
   if (email && email !== session.user.email) {

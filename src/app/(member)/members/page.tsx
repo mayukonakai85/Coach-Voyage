@@ -9,7 +9,7 @@ export default async function MembersPage() {
   if (!session) redirect("/login");
 
   const members = await prisma.user.findMany({
-    where: { isActive: true },
+    where: { OR: [{ isActive: true }, { role: "ADMIN" }] },
     select: {
       id: true,
       name: true,

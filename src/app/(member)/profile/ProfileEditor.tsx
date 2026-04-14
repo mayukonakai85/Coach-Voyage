@@ -128,7 +128,7 @@ export function ProfileEditor({
         method: "PUT",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
-          name, bio, email, learningSince,
+          name, email, learningSince,
           contentRequest: (requestType || requestTheme || requestDetail)
             ? JSON.stringify({ type: requestType, theme: requestTheme, detail: requestDetail })
             : null,
@@ -156,7 +156,7 @@ export function ProfileEditor({
       const res = await fetch("/api/profile", {
         method: "PUT",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ name, bio, email, currentPassword, newPassword }),
+        body: JSON.stringify({ name, email, currentPassword, newPassword }),
       });
       if (res.ok) {
         setPwSaved(true);
