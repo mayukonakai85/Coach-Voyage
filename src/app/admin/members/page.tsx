@@ -5,6 +5,7 @@ import Link from "next/link";
 import { AddMemberForm } from "./AddMemberForm";
 import { InviteButton } from "./InviteButton";
 import { MemberRow } from "./MemberRow";
+import { WorkflowGuide } from "./WorkflowGuide";
 
 export default async function AdminMembersPage() {
   const session = await getServerSession(authOptions);
@@ -14,7 +15,7 @@ export default async function AdminMembersPage() {
     orderBy: { createdAt: "desc" },
     select: {
       id: true, name: true, email: true, role: true, title: true,
-      isActive: true, memberStatus: true, createdAt: true, invitedAt: true, joinedMonth: true, lastLoginAt: true,
+      isActive: true, memberStatus: true, createdAt: true, invitedAt: true, paymentEmailSentAt: true, joinedMonth: true, lastLoginAt: true,
     },
   })).sort((a, b) => {
     if (a.role === "ADMIN" && b.role !== "ADMIN") return -1;
@@ -44,11 +45,12 @@ export default async function AdminMembersPage() {
 
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
         {/* 会員追加フォーム */}
-        <div className="lg:col-span-1">
+        <div className="lg:col-span-1 flex flex-col gap-4">
           <div className="card p-6">
             <h2 className="font-semibold text-gray-900 mb-4">会員を追加</h2>
             <AddMemberForm />
           </div>
+          <WorkflowGuide />
         </div>
 
         {/* 会員一覧 */}
@@ -75,13 +77,13 @@ export default async function AdminMembersPage() {
                     <th className="text-left text-xs font-semibold text-gray-500 uppercase tracking-wider px-3 py-3 hidden sm:table-cell">役職</th>
                     <th className="text-left text-xs font-semibold text-gray-500 uppercase tracking-wider px-3 py-3 hidden md:table-cell">権限</th>
                     <th className="text-left text-xs font-semibold text-gray-500 uppercase tracking-wider px-3 py-3 hidden lg:table-cell">入会月</th>
-                    <th className="text-right text-xs font-semibold text-gray-500 uppercase tracking-wider px-3 py-3">招待</th>
+                    <th className="text-right text-xs font-semibold text-gray-500 uppercase tracking-wider px-3 py-3">メール送付</th>
                     <th className="text-right text-xs font-semibold text-gray-500 uppercase tracking-wider pl-3 pr-5 py-3">ステータス</th>
                   </tr>
                 </thead>
                 <tbody>
                   {members.map((member) => (
-                    <MemberRow key={member.id} member={{ ...member, invitedAt: member.invitedAt ?? null, joinedMonth: member.joinedMonth ?? null, memberStatus: member.memberStatus, lastLoginAt: member.lastLoginAt ?? null }} currentUserId={session?.user?.id ?? ""} />
+                    <MemberRow key={member.id} member={{ ...member, invitedAt: member.invitedAt ?? null, paymentEmailSentAt: member.paymentEmailSentAt ?? null, joinedMonth: member.joinedMonth ?? null, memberStatus: member.memberStatus, lastLoginAt: member.lastLoginAt ?? null }} currentUserId={session?.user?.id ?? ""} />
                   ))}
                 </tbody>
               </table>

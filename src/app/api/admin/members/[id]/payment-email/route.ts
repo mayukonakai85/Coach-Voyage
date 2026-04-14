@@ -26,5 +26,10 @@ export async function POST(
     );
   }
 
+  await prisma.user.update({
+    where: { id: params.id },
+    data: { paymentEmailSentAt: new Date() },
+  });
+
   return NextResponse.json({ success: true });
 }

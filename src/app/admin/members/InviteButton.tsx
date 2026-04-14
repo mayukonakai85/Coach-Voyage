@@ -54,7 +54,7 @@ export function InviteButton({
         {status === "sending" ? "送信中…" :
          status === "done" ? "送信完了 ✓" :
          status === "error" ? "失敗 (再試行)" :
-         lastInvitedAt ? "招待を再送" : "招待メール送付"}
+         lastInvitedAt ? "招待メールを再送" : "招待メール"}
       </button>
       {sentLabel && status === "idle" && (
         <p className="text-xs text-gray-400">{sentLabel}</p>

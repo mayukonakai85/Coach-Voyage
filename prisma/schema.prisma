@@ -47,6 +47,7 @@ model User {
   passwordResetToken   String?
   passwordResetExpires DateTime?
   invitedAt            DateTime? // 招待メール送付日時
+  paymentEmailSentAt   DateTime? // 決済案内メール送付日時
   tags                 UserTag[]
   seminarLecturers     SeminarLecturer[]
   createdAt DateTime @default(now())

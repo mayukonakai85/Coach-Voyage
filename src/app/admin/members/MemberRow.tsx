@@ -15,6 +15,7 @@ type Member = {
   memberStatus: string;
   createdAt: Date;
   invitedAt: Date | null;
+  paymentEmailSentAt: Date | null;
   joinedMonth: string | null;
   lastLoginAt: Date | null;
 };
@@ -41,6 +42,7 @@ export function MemberRow({ member, currentUserId }: { member: Member; currentUs
   const [editingMonth, setEditingMonth] = useState(false);
   const [saving, setSaving] = useState(false);
   const [sendingPayment, setSendingPayment] = useState(false);
+  const [paymentSentAt, setPaymentSentAt] = useState<Date | null>(member.paymentEmailSentAt);
 
   async function patch(data: Record<string, unknown>) {
     setSaving(true);
@@ -158,27 +160,41 @@ export function MemberRow({ member, currentUserId }: { member: Member; currentUs
         )}
       </td>
 
-      {/* 招待 */}
+      {/* メール送付 */}
       <td className="px-3 py-3">
-        <div className="flex flex-col items-end gap-1.5">
-          <button
-            onClick={async () => {
-              if (!confirm(`${member.name} さんに決済メールを送信しますか？`)) return;
-              setSendingPayment(true);
-              try {
-                const res = await fetch(`/api/admin/members/${member.id}/payment-email`, { method: "POST" });
-                const d = await res.json();
-                if (!res.ok) alert(d.error ?? "送信に失敗しました");
-                else alert("決済メールを送信しました");
-              } finally {
-                setSendingPayment(false);
-              }
-            }}
-            disabled={sendingPayment}
-            className="text-xs font-medium text-emerald-700 bg-emerald-50 hover:bg-emerald-100 border border-emerald-200 px-2.5 py-1 rounded-lg transition-colors disabled:opacity-50 whitespace-nowrap"
-          >
-            {sendingPayment ? "送信中..." : "決済メール"}
-          </button>
+        <div className="flex flex-col items-end gap-2">
+          {/* 決済案内 */}
+          <div className="flex flex-col items-end gap-0.5">
+            <button
+              onClick={async () => {
+                const label = paymentSentAt ? "再送" : "送信";
+                if (!confirm(`${member.name} さんに決済案内メールを${label}しますか？`)) return;
+                setSendingPayment(true);
+                try {
+                  const res = await fetch(`/api/admin/members/${member.id}/payment-email`, { method: "POST" });
+                  const d = await res.json();
+                  if (!res.ok) alert(d.error ?? "送信に失敗しました");
+                  else setPaymentSentAt(new Date());
+                } finally {
+                  setSendingPayment(false);
+                }
+              }}
+              disabled={sendingPayment}
+              className={`text-xs font-medium px-2.5 py-1.5 rounded-lg transition-colors disabled:opacity-50 whitespace-nowrap ${
+                paymentSentAt
+                  ? "bg-gray-100 hover:bg-emerald-50 text-gray-600 hover:text-emerald-700"
+                  : "bg-emerald-50 hover:bg-emerald-100 text-emerald-700 border border-emerald-200"
+              }`}
+            >
+              {sendingPayment ? "送信中…" : paymentSentAt ? "決済案内を再送" : "決済案内"}
+            </button>
+            {paymentSentAt && (
+              <p className="text-xs text-gray-400">
+                送付済み {new Date(paymentSentAt).toLocaleDateString("ja-JP", { month: "numeric", day: "numeric" })}
+              </p>
+            )}
+          </div>
+          {/* 招待メール */}
           <InviteButton memberId={member.id} memberName={member.name} memberEmail={member.email} invitedAt={member.invitedAt} />
         </div>
       </td>
