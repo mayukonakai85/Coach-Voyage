@@ -28,7 +28,7 @@ export async function POST(req: NextRequest) {
   }
 
   const isInviteToken = user.inviteToken === token;
-  const hashedPassword = await bcrypt.hash(password, 12);
+  const hashedPassword = await bcrypt.hash(password, 10);
 
   await prisma.user.update({
     where: { id: user.id },

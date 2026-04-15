@@ -77,7 +77,7 @@ export async function PUT(req: NextRequest) {
     if (!valid) {
       return NextResponse.json({ error: "現在のパスワードが正しくありません" }, { status: 400 });
     }
-    updateData.password = await bcrypt.hash(newPassword, 12);
+    updateData.password = await bcrypt.hash(newPassword, 10);
   }
 
   const user = await prisma.user.update({

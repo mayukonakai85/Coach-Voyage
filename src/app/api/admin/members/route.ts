@@ -62,7 +62,7 @@ export async function POST(req: NextRequest) {
     }
 
     // 仮パスワード（ログイン不可な状態）とリセットトークン
-    const tempPassword = await bcrypt.hash(randomBytes(32).toString("hex"), 12);
+    const tempPassword = await bcrypt.hash(randomBytes(32).toString("hex"), 10);
     const token = randomBytes(32).toString("hex");
     const expires = new Date(Date.now() + 24 * 60 * 60 * 1000); // 24時間
 
