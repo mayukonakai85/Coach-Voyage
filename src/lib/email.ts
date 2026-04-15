@@ -59,7 +59,8 @@ export async function sendWelcomeEmail({ to, name, token }: { to: string; name: 
           パスワードを設定してはじめる →
         </a>
       </div>
-      <p style="color: #ef4444; font-size: 13px; text-align: center; margin: 0 0 24px;">⚠️ このリンクの有効期限は <strong>7日間</strong> です。期限内にパスワードを設定してください。</p>
+      <p style="color: #ef4444; font-size: 13px; text-align: center; margin: 0 0 8px;">⚠️ このリンクの有効期限は <strong>7日間</strong> です。期限内にパスワードを設定してください。</p>
+      <p style="color: #6b7280; font-size: 13px; text-align: center; margin: 0 0 24px;">有効期限が切れてしまった場合は、<a href="mailto:coachvoyage.2025@gmail.com" style="color: #1d4ed8;">coachvoyage.2025@gmail.com</a> までご連絡ください。</p>
       <p style="color: #9ca3af; font-size: 12px;">※ このメールに心当たりがない場合はそのまま破棄してください。</p>
     </div>
     <div style="background: #f8fafc; border-top: 1px solid #e5e7eb; padding: 16px 32px; text-align: center;">
