@@ -54,11 +54,12 @@ export async function sendWelcomeEmail({ to, name, token }: { to: string; name: 
       <div style="background: #f8fafc; border: 1px solid #e2e8f0; border-radius: 8px; padding: 16px 20px; margin-bottom: 24px;">
         <p style="color: #6b7280; font-size: 13px; margin: 0;">ログインメールアドレス：<strong style="color: #111827;">${to}</strong></p>
       </div>
-      <div style="text-align: center; margin-bottom: 24px;">
+      <div style="text-align: center; margin-bottom: 16px;">
         <a href="${setPasswordUrl}" style="display: inline-block; background: #1d4ed8; color: white; text-decoration: none; font-weight: bold; font-size: 14px; padding: 14px 32px; border-radius: 8px;">
           パスワードを設定してはじめる →
         </a>
       </div>
+      <p style="color: #ef4444; font-size: 13px; text-align: center; margin: 0 0 24px;">⚠️ このリンクの有効期限は <strong>7日間</strong> です。期限内にパスワードを設定してください。</p>
       <p style="color: #9ca3af; font-size: 12px;">※ このメールに心当たりがない場合はそのまま破棄してください。</p>
     </div>
     <div style="background: #f8fafc; border-top: 1px solid #e5e7eb; padding: 16px 32px; text-align: center;">
@@ -151,11 +152,12 @@ export async function sendPasswordResetEmail({ to, name, token }: { to: string; 
         パスワードリセットのリクエストを受け付けました。<br>
         下のボタンから新しいパスワードを設定してください。
       </p>
-      <div style="text-align: center; margin-bottom: 24px;">
+      <div style="text-align: center; margin-bottom: 16px;">
         <a href="${resetUrl}" style="display: inline-block; background: #1d4ed8; color: white; text-decoration: none; font-weight: bold; font-size: 14px; padding: 14px 32px; border-radius: 8px;">
           パスワードをリセットする →
         </a>
       </div>
+      <p style="color: #ef4444; font-size: 13px; text-align: center; margin: 0 0 24px;">⚠️ このリンクの有効期限は <strong>24時間</strong> です。期限内にパスワードを設定してください。</p>
       <p style="color: #9ca3af; font-size: 12px;">※ このリクエストに心当たりがない場合はそのまま破棄してください。</p>
     </div>
     <div style="background: #f8fafc; border-top: 1px solid #e5e7eb; padding: 16px 32px; text-align: center;">
