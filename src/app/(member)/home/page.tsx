@@ -102,10 +102,11 @@ type LecturerInfo = {
 // 次回セミナー横長バナー
 function NextSeminarBanner({ seminar }: { seminar: { title: string; description?: string | null; scheduledAt: Date; zoomUrl: string | null; lecturers?: LecturerInfo[] } }) {
   const d = new Date(seminar.scheduledAt);
-  const month = d.getMonth() + 1;
-  const day = d.getDate();
-  const weekday = d.toLocaleDateString("ja-JP", { weekday: "short" });
-  const time = d.toLocaleTimeString("ja-JP", { hour: "2-digit", minute: "2-digit" });
+  const TZ = "Asia/Tokyo";
+  const month = Number(d.toLocaleDateString("ja-JP", { month: "numeric", timeZone: TZ }));
+  const day = Number(d.toLocaleDateString("ja-JP", { day: "numeric", timeZone: TZ }));
+  const weekday = d.toLocaleDateString("ja-JP", { weekday: "short", timeZone: TZ });
+  const time = d.toLocaleTimeString("ja-JP", { hour: "2-digit", minute: "2-digit", timeZone: TZ });
 
   return (
     <div className="rounded-2xl bg-gradient-to-r from-blue-600 to-indigo-700 p-5 sm:p-6 text-white flex flex-col sm:flex-row items-start sm:items-center gap-4">

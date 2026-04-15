@@ -34,7 +34,7 @@ export default async function VoyageLibraryPage() {
   return (
     <div>
       {/* ページヘッダー */}
-      <div className="mb-6 flex items-end justify-between gap-4">
+      <div className="mb-6 flex flex-wrap items-end justify-between gap-3">
         <div>
           <p className="text-sm text-blue-600 font-semibold uppercase tracking-widest mb-1">
             Member page
