@@ -46,6 +46,8 @@ model User {
   formSubmittedAt        DateTime? // フォーム送信日時
   passwordResetToken   String?
   passwordResetExpires DateTime?
+  inviteToken          String?   // 招待トークン（passwordResetTokenと別管理）
+  inviteTokenExpires   DateTime? // 招待トークン有効期限
   invitedAt            DateTime? // 招待メール送付日時
   paymentEmailSentAt   DateTime? // 決済案内メール送付日時
   tags                 UserTag[]

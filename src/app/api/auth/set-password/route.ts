@@ -9,10 +9,15 @@ export async function POST(req: NextRequest) {
     return NextResponse.json({ error: "パスワードは8文字以上にしてください" }, { status: 400 });
   }
 
+  const now = new Date();
+
+  // 招待トークンとパスワードリセットトークンの両方を確認（別フィールドで管理）
   const user = await prisma.user.findFirst({
     where: {
-      passwordResetToken: token,
-      passwordResetExpires: { gt: new Date() },
+      OR: [
+        { inviteToken: token, inviteTokenExpires: { gt: now } },
+        { passwordResetToken: token, passwordResetExpires: { gt: now } },
+      ],
     },
   });
 
@@ -20,17 +25,22 @@ export async function POST(req: NextRequest) {
     return NextResponse.json({ error: "リンクが無効か期限切れです" }, { status: 400 });
   }
 
+  const isInviteToken = user.inviteToken === token;
   const hashedPassword = await bcrypt.hash(password, 12);
 
   await prisma.user.update({
     where: { id: user.id },
     data: {
       password: hashedPassword,
-      passwordResetToken: null,
-      passwordResetExpires: null,
-      // パスワード設定完了 → 会員を有効化
-      isActive: true,
-      memberStatus: user.memberStatus === "PENDING" ? "ACTIVE" : user.memberStatus,
+      // 使用済みトークンを消去
+      ...(isInviteToken
+        ? { inviteToken: null, inviteTokenExpires: null }
+        : { passwordResetToken: null, passwordResetExpires: null }),
+      // 招待リンクからのパスワード設定時のみ会員を有効化
+      ...(isInviteToken && {
+        isActive: true,
+        memberStatus: user.memberStatus === "PENDING" ? "ACTIVE" : user.memberStatus,
+      }),
     },
   });
 
