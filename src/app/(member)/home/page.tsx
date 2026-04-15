@@ -101,12 +101,13 @@ type LecturerInfo = {
 
 // 次回セミナー横長バナー
 function NextSeminarBanner({ seminar }: { seminar: { title: string; description?: string | null; scheduledAt: Date; zoomUrl: string | null; lecturers?: LecturerInfo[] } }) {
-  const d = new Date(seminar.scheduledAt);
-  const TZ = "Asia/Tokyo";
-  const month = Number(d.toLocaleDateString("ja-JP", { month: "numeric", timeZone: TZ }));
-  const day = Number(d.toLocaleDateString("ja-JP", { day: "numeric", timeZone: TZ }));
-  const weekday = d.toLocaleDateString("ja-JP", { weekday: "short", timeZone: TZ });
-  const time = d.toLocaleTimeString("ja-JP", { hour: "2-digit", minute: "2-digit", timeZone: TZ });
+  // UTCからJST（+9時間）に変換して日付を取得
+  const d = new Date(new Date(seminar.scheduledAt).getTime() + 9 * 60 * 60 * 1000);
+  const month = d.getUTCMonth() + 1;
+  const day = d.getUTCDate();
+  const weekdays = ["日", "月", "火", "水", "木", "金", "土"];
+  const weekday = weekdays[d.getUTCDay()];
+  const time = `${String(d.getUTCHours()).padStart(2, "0")}:${String(d.getUTCMinutes()).padStart(2, "0")}`;
 
   return (
     <div className="rounded-2xl bg-gradient-to-r from-blue-600 to-indigo-700 p-5 sm:p-6 text-white flex flex-col sm:flex-row items-start sm:items-center gap-4">
