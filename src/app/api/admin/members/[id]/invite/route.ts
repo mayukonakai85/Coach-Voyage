@@ -5,6 +5,8 @@ import { prisma } from "@/lib/db";
 import { randomBytes } from "crypto";
 import { sendWelcomeEmail } from "@/lib/email";
 
+export const maxDuration = 30;
+
 export async function POST(
   _req: NextRequest,
   { params }: { params: { id: string } }

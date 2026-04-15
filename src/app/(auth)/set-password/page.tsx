@@ -23,11 +23,19 @@ function SetPasswordForm() {
     setLoading(true);
     setError("");
 
-    const res = await fetch("/api/auth/set-password", {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ token, password }),
-    });
+    let res: Response;
+    try {
+      res = await fetch("/api/auth/set-password", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ token, password }),
+      });
+    } catch {
+      // ネットワークエラー・タイムアウト：パスワードは設定されている可能性があるためログイン試行を促す
+      setLoading(false);
+      setError("通信エラーが発生しました。すでにパスワードが設定されている可能性があります。一度ログインページからログインをお試しください。");
+      return;
+    }
 
     const data = await res.json();
     setLoading(false);

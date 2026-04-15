@@ -3,6 +3,8 @@ import { prisma } from "@/lib/db";
 import { randomBytes } from "crypto";
 import { sendPasswordResetEmail } from "@/lib/email";
 
+export const maxDuration = 30;
+
 export async function POST(req: NextRequest) {
   const { email } = await req.json();
   if (!email) return NextResponse.json({ error: "メールアドレスを入力してください" }, { status: 400 });

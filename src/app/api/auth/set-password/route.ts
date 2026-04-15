@@ -2,6 +2,8 @@ import { NextRequest, NextResponse } from "next/server";
 import { prisma } from "@/lib/db";
 import bcrypt from "bcryptjs";
 
+export const maxDuration = 30; // Vercelのタイムアウトを30秒に延長
+
 export async function POST(req: NextRequest) {
   const { token, password } = await req.json();
 
