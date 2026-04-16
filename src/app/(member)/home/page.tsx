@@ -1,6 +1,7 @@
 import { getServerSession } from "next-auth";
 import { authOptions } from "@/lib/auth";
 import { prisma } from "@/lib/db";
+import { revalidateTag } from "next/cache";
 import { getCachedNextSeminar, getCachedUpcomingSeminars } from "@/lib/cache";
 import { SeminarCalendar } from "@/components/SeminarCalendar";
 import { MonthCalendar } from "@/components/MonthCalendar";
@@ -24,6 +25,8 @@ export default async function HomePage() {
     if (nextUpcoming) {
       await prisma.seminar.update({ where: { id: nextUpcoming.id }, data: { isNext: true } });
     }
+    // DBを更新したのでキャッシュを即時無効化（300秒待たずに反映させる）
+    revalidateTag("seminars");
   }
 
   const showPopup = session?.user?.loginCount === 1 || session?.user?.loginCount === 3;
