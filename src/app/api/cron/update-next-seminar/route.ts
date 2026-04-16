@@ -15,12 +15,17 @@ export async function GET(req: Request) {
   const now = new Date();
   const currentNext = await prisma.seminar.findFirst({ where: { isNext: true } });
 
-  if (!currentNext || currentNext.scheduledAt > now) {
-    // まだ時間が来ていない、または既にisNextがない
+  if (!currentNext) {
     return NextResponse.json({ updated: false });
   }
 
-  // 時間が過ぎた → 次のセミナーに切り替える
+  // 終了時刻が設定されていればそれで判定、なければ開始時刻で判定
+  const cutoff = currentNext.endsAt ?? currentNext.scheduledAt;
+  if (cutoff > now) {
+    return NextResponse.json({ updated: false });
+  }
+
+  // 終了時刻（または開始時刻）を過ぎた → 次のセミナーに切り替える
   const nextUpcoming = await prisma.seminar.findFirst({
     where: { scheduledAt: { gte: now } },
     orderBy: { scheduledAt: "asc" },

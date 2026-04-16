@@ -14,7 +14,7 @@ export async function PUT(req: NextRequest, { params }: { params: { id: string }
   const session = await requireAdmin();
   if (!session) return NextResponse.json({ error: "Forbidden" }, { status: 403 });
 
-  const { title, description, scheduledAt, zoomUrl, location, isOnline, isNext } = await req.json();
+  const { title, description, scheduledAt, endsAt, zoomUrl, location, isOnline, isNext } = await req.json();
 
   if (isNext) {
     await prisma.seminar.updateMany({ where: { id: { not: params.id } }, data: { isNext: false } });
@@ -26,6 +26,7 @@ export async function PUT(req: NextRequest, { params }: { params: { id: string }
       title,
       description: description || null,
       scheduledAt: new Date(scheduledAt),
+      endsAt: endsAt ? new Date(endsAt) : null,
       zoomUrl: zoomUrl || null,
       location: location || null,
       isOnline: isOnline ?? true,

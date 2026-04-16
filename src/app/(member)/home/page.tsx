@@ -86,14 +86,18 @@ type LecturerInfo = {
 };
 
 // 次回セミナー横長バナー
-function NextSeminarBanner({ seminar }: { seminar: { title: string; description?: string | null; scheduledAt: Date; zoomUrl: string | null; lecturers?: LecturerInfo[] } }) {
+function NextSeminarBanner({ seminar }: { seminar: { title: string; description?: string | null; scheduledAt: Date; endsAt?: Date | null; zoomUrl: string | null; lecturers?: LecturerInfo[] } }) {
   // UTCからJST（+9時間）に変換して日付を取得
-  const d = new Date(new Date(seminar.scheduledAt).getTime() + 9 * 60 * 60 * 1000);
+  const toJST = (date: Date) => new Date(new Date(date).getTime() + 9 * 60 * 60 * 1000);
+  const d = toJST(seminar.scheduledAt);
   const month = d.getUTCMonth() + 1;
   const day = d.getUTCDate();
   const weekdays = ["日", "月", "火", "水", "木", "金", "土"];
   const weekday = weekdays[d.getUTCDay()];
-  const time = `${String(d.getUTCHours()).padStart(2, "0")}:${String(d.getUTCMinutes()).padStart(2, "0")}`;
+  const startTime = `${String(d.getUTCHours()).padStart(2, "0")}:${String(d.getUTCMinutes()).padStart(2, "0")}`;
+  const endTime = seminar.endsAt
+    ? (() => { const e = toJST(seminar.endsAt); return `${String(e.getUTCHours()).padStart(2, "0")}:${String(e.getUTCMinutes()).padStart(2, "0")}`; })()
+    : null;
 
   return (
     <div className="rounded-2xl bg-gradient-to-r from-blue-600 to-indigo-700 p-5 sm:p-6 text-white flex flex-col sm:flex-row items-start sm:items-center gap-4">
@@ -108,7 +112,7 @@ function NextSeminarBanner({ seminar }: { seminar: { title: string; description?
           </div>
           <div className="mb-0.5">
             <p className="text-base font-bold text-blue-200">（{weekday}）</p>
-            <p className="text-xl font-black text-white">{time}〜</p>
+            <p className="text-xl font-black text-white">{startTime}{endTime ? `〜${endTime}` : "〜"}</p>
           </div>
         </div>
       </div>

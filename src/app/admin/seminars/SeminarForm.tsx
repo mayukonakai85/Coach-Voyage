@@ -9,6 +9,7 @@ type Props = {
     title: string;
     description?: string | null;
     scheduledAt: Date;
+    endsAt?: Date | null;
     zoomUrl: string | null;
     location?: string | null;
     isOnline: boolean;
@@ -31,6 +32,7 @@ export function SeminarForm({ initialData, onCancel }: Props) {
   const isEdit = !!initialData;
 
   const init = initialData ? toLocalParts(new Date(initialData.scheduledAt)) : { date: "", hour: "10", minute: "00" };
+  const initEnd = initialData?.endsAt ? toLocalParts(new Date(initialData.endsAt)) : { hour: "12", minute: "00" };
 
   const [form, setForm] = useState({
     title: initialData?.title ?? "",
@@ -38,6 +40,8 @@ export function SeminarForm({ initialData, onCancel }: Props) {
     date: init.date,
     hour: init.hour,
     minute: init.minute,
+    endHour: initEnd.hour,
+    endMinute: initEnd.minute,
     zoomUrl: initialData?.zoomUrl ?? "",
     location: initialData?.location ?? "",
     isOnline: initialData?.isOnline ?? true,
@@ -54,6 +58,7 @@ export function SeminarForm({ initialData, onCancel }: Props) {
     setSuccess("");
 
     const scheduledAt = `${form.date}T${form.hour}:${form.minute}:00+09:00`;
+    const endsAt = `${form.date}T${form.endHour}:${form.endMinute}:00+09:00`;
 
     try {
       const url = isEdit ? `/api/admin/seminars/${initialData.id}` : "/api/admin/seminars";
@@ -62,7 +67,7 @@ export function SeminarForm({ initialData, onCancel }: Props) {
       const res = await fetch(url, {
         method,
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ ...form, scheduledAt }),
+        body: JSON.stringify({ ...form, scheduledAt, endsAt }),
       });
 
       const data = await res.json();
@@ -70,7 +75,7 @@ export function SeminarForm({ initialData, onCancel }: Props) {
 
       if (!isEdit) {
         setSuccess("イベントを追加しました");
-        setForm({ title: "", description: "", date: "", hour: "10", minute: "00", zoomUrl: "", location: "", isOnline: true, isNext: false });
+        setForm({ title: "", description: "", date: "", hour: "10", minute: "00", endHour: "12", endMinute: "00", zoomUrl: "", location: "", isOnline: true, isNext: false });
       }
       router.refresh();
       onCancel?.();
@@ -138,6 +143,20 @@ export function SeminarForm({ initialData, onCancel }: Props) {
             {hours.map((h) => <option key={h} value={h}>{h}時</option>)}
           </select>
           <select value={form.minute} onChange={(e) => setForm({ ...form, minute: e.target.value })} className="input w-24">
+            <option value="00">00分</option>
+            <option value="30">30分</option>
+          </select>
+        </div>
+      </div>
+
+      <div>
+        <label className="label">終了時刻 *</label>
+        <p className="text-xs text-gray-400 mb-1.5">終了時刻を過ぎるとZoomリンクが非表示になります</p>
+        <div className="flex items-center gap-2">
+          <select value={form.endHour} onChange={(e) => setForm({ ...form, endHour: e.target.value })} className="input w-24">
+            {hours.map((h) => <option key={h} value={h}>{h}時</option>)}
+          </select>
+          <select value={form.endMinute} onChange={(e) => setForm({ ...form, endMinute: e.target.value })} className="input w-24">
             <option value="00">00分</option>
             <option value="30">30分</option>
           </select>

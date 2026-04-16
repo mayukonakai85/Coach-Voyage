@@ -205,16 +205,17 @@ model VideoView {
 
 // セミナー
 model Seminar {
-  id          String   @id @default(cuid())
+  id          String    @id @default(cuid())
   title       String
   description String?
   scheduledAt DateTime
+  endsAt      DateTime? // 終了時刻（これを過ぎたら次のセミナーに切り替え）
   zoomUrl     String?
-  location    String?  // 会場名・場所（オフラインイベント用）
-  isOnline    Boolean  @default(true) // true=オンライン(青), false=オフライン(緑)
-  isNext      Boolean  @default(false)
-  createdAt   DateTime @default(now())
-  updatedAt   DateTime @updatedAt
+  location    String?   // 会場名・場所（オフラインイベント用）
+  isOnline    Boolean   @default(true) // true=オンライン(青), false=オフライン(緑)
+  isNext      Boolean   @default(false)
+  createdAt   DateTime  @default(now())
+  updatedAt   DateTime  @updatedAt
   lecturers   SeminarLecturer[]
 }
 

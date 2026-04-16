@@ -22,7 +22,7 @@ export async function POST(req: NextRequest) {
   const session = await requireAdmin();
   if (!session) return NextResponse.json({ error: "Forbidden" }, { status: 403 });
 
-  const { title, description, scheduledAt, zoomUrl, location, isOnline, isNext } = await req.json();
+  const { title, description, scheduledAt, endsAt, zoomUrl, location, isOnline, isNext } = await req.json();
   if (!title || !scheduledAt) {
     return NextResponse.json({ error: "タイトルと日時は必須です" }, { status: 400 });
   }
@@ -34,6 +34,7 @@ export async function POST(req: NextRequest) {
       title,
       description: description || null,
       scheduledAt: new Date(scheduledAt),
+      endsAt: endsAt ? new Date(endsAt) : null,
       zoomUrl: zoomUrl || null,
       location: location || null,
       isOnline: isOnline ?? true,

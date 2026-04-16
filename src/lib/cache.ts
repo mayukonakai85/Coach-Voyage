@@ -37,7 +37,7 @@ export const getCachedUpcomingSeminars = unstable_cache(
       where: { scheduledAt: { gte: new Date(now) } },
       orderBy: { scheduledAt: "asc" },
       select: {
-        id: true, title: true, description: true, scheduledAt: true,
+        id: true, title: true, description: true, scheduledAt: true, endsAt: true,
         zoomUrl: true, location: true, isOnline: true, isNext: true,
         lecturers: {
           orderBy: { sortOrder: "asc" },

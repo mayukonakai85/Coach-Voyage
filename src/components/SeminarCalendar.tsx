@@ -15,6 +15,7 @@ type Seminar = {
   title: string;
   description?: string | null;
   scheduledAt: Date;
+  endsAt?: Date | null;
   zoomUrl: string | null;
   location?: string | null;
   isOnline?: boolean;
@@ -36,7 +37,11 @@ export function SeminarCalendar({ seminars }: { seminars: Seminar[] }) {
         const month = d.getMonth() + 1;
         const day = d.getDate();
         const weekday = d.toLocaleDateString("ja-JP", { weekday: "short" });
-        const time = d.toLocaleTimeString("ja-JP", { hour: "2-digit", minute: "2-digit" });
+        const startTime = d.toLocaleTimeString("ja-JP", { hour: "2-digit", minute: "2-digit" });
+        const endTime = seminar.endsAt
+          ? new Date(seminar.endsAt).toLocaleTimeString("ja-JP", { hour: "2-digit", minute: "2-digit" })
+          : null;
+        const time = endTime ? `${startTime}〜${endTime}` : `${startTime}〜`;
         const isOpen = selected === seminar.id;
         const isOnline = seminar.isOnline !== false;
         const color = isOnline ? "blue" : "green";
@@ -106,7 +111,7 @@ export function SeminarCalendar({ seminars }: { seminars: Seminar[] }) {
               <div className={`mx-2 mt-1 p-4 rounded-xl border space-y-3 ${isOnline ? "bg-blue-50 border-blue-100" : "bg-green-50 border-green-100"}`}>
                 <p className="text-sm font-bold text-gray-800">{seminar.title}</p>
                 <p className={`text-sm font-semibold ${isOnline ? "text-blue-700" : "text-green-700"}`}>
-                  {month}月{day}日（{weekday}） {time}〜
+                  {month}月{day}日（{weekday}） {time}
                 </p>
                 {seminar.description && (
                   <p className="text-sm text-gray-600 leading-relaxed">{seminar.description}</p>
